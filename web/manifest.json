@@ -1,6 +1,6 @@
 {
-    "name": "mimeng_leafcloud_app_v2",
-    "short_name": "mimeng_leafcloud_app_v2",
+    "name": "LeafCloud",
+    "short_name": "LeafCloud",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

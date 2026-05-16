@@ -1,4 +1,4 @@
-package com.example.mimeng_leafcloud_app_v2
+package com.example.leaf_cloud
 
 import io.flutter.embedding.android.FlutterActivity
 
