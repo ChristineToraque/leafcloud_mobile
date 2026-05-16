@@ -22,7 +22,7 @@ To ensure modularity and maintainability, the login logic is separated into diff
 ### A. Centralized Configuration (`lib/core/constants.dart`)
 Stores API endpoints and global constants. It manages the base URL dynamically.
 - `baseUrl`: Defaults to `http://localhost:8000`, but can be updated via the Auto-Discovery service.
-- `loginEndpoint`: Path to the authentication API.
+- `loginEndpoint`: `/api/v1/auth/login` - The path to the authentication API.
 
 ### B. Auto-Discovery Service (`lib/services/discovery_service.dart`)
 Allows the app to automatically find the backend server on the local network using mDNS (Multicast DNS).

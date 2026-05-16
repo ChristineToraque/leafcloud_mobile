@@ -9,7 +9,7 @@ class ApiConstants {
   /// Returns the discovered URL if available, otherwise falls back to the default localhost.
   static String get baseUrl => _discoveredBaseUrl ?? 'http://localhost:8000';
 
-  static String get loginEndpoint => '$baseUrl/auth/login';
+  static String get loginEndpoint => '$baseUrl/api/v1/auth/login';
 
   /// Dynamically updates the base URL (used by discovery service)
   static void updateBaseUrl(String newUrl) {
