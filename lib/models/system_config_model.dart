@@ -1,4 +1,5 @@
 class SystemConfig {
+  final int? id;
   final String tankName;
   final double waterVolumeLiters;
   final String macroBrandName;
@@ -11,8 +12,12 @@ class SystemConfig {
   final double microKPct;
   final double targetMacroDosageMlL;
   final double targetMicroDosageMlL;
+  final bool isActive;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
 
   SystemConfig({
+    this.id,
     required this.tankName,
     required this.waterVolumeLiters,
     required this.macroBrandName,
@@ -25,6 +30,9 @@ class SystemConfig {
     required this.microKPct,
     required this.targetMacroDosageMlL,
     required this.targetMicroDosageMlL,
+    this.isActive = true,
+    this.createdAt,
+    this.updatedAt,
   });
 
   Map<String, dynamic> toJson() {
@@ -41,11 +49,13 @@ class SystemConfig {
       'micro_k_pct': microKPct,
       'target_macro_dosage_mll': targetMacroDosageMlL,
       'target_micro_dosage_mll': targetMicroDosageMlL,
+      'is_active': isActive,
     };
   }
 
   factory SystemConfig.fromJson(Map<String, dynamic> json) {
     return SystemConfig(
+      id: json['id'],
       tankName: json['tank_name'] ?? '',
       waterVolumeLiters: (json['water_volume_liters'] as num?)?.toDouble() ?? 0.0,
       macroBrandName: json['macro_brand_name'] ?? '',
@@ -58,6 +68,9 @@ class SystemConfig {
       microKPct: (json['micro_k_pct'] as num?)?.toDouble() ?? 0.0,
       targetMacroDosageMlL: (json['target_macro_dosage_mll'] as num?)?.toDouble() ?? 0.0,
       targetMicroDosageMlL: (json['target_micro_dosage_mll'] as num?)?.toDouble() ?? 0.0,
+      isActive: json['is_active'] ?? true,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
     );
   }
 }
