@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leaf_cloud/repositories/auth_repository.dart';
 import 'package:leaf_cloud/repositories/auth_repository_interface.dart';
+import 'package:leaf_cloud/repositories/config_repository.dart';
+import 'package:leaf_cloud/repositories/config_repository_interface.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
+import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/services/discovery_service.dart';
 import 'package:leaf_cloud/ui/login_page.dart';
 
@@ -15,12 +18,22 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
+        // Repositories
         Provider<IAuthRepository>(
           create: (_) => AuthRepository(),
         ),
+        Provider<IConfigRepository>(
+          create: (_) => ConfigRepository(),
+        ),
+        // Providers
         ChangeNotifierProvider(
           create: (context) => AuthProvider(
             Provider.of<IAuthRepository>(context, listen: false),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => ConfigProvider(
+            Provider.of<IConfigRepository>(context, listen: false),
           ),
         ),
       ],
