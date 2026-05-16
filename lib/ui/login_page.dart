@@ -3,6 +3,8 @@ import 'package:leaf_cloud/core/constants.dart';
 import 'package:provider/provider.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
 
+import 'package:leaf_cloud/ui/home_page.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -39,6 +41,12 @@ class _LoginPageState extends State<LoginPage> {
           content: Text(authProvider.loginResponse?.message ?? 'Login successful!'),
           backgroundColor: Colors.green[700],
         ),
+      );
+      
+      // Navigate to HomePage
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomePage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
