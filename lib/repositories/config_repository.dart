@@ -10,35 +10,123 @@ class ConfigRepository implements IConfigRepository {
   ConfigRepository({http.Client? client}) : _client = client ?? http.Client();
 
   @override
-  Future<SystemConfig> getConfig() async {
-    // Assuming there's a GET endpoint for the latest config
-    final response = await _client.get(
-      Uri.parse('${ApiConstants.baseUrl}/api/v1/config'),
-      headers: {'Content-Type': 'application/json'},
-    );
+  Future<List<SystemConfig>> listConfigs() async {
+    try {
+      final response = await _client.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/'),
+        headers: {'Content-Type': 'application/json'},
+      );
 
-    if (response.statusCode == 200) {
-      return SystemConfig.fromJson(jsonDecode(response.body));
-    } else {
-      throw Exception('Failed to load configuration');
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server error: Non-JSON response (Status: ${response.statusCode})');
+      }
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => SystemConfig.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to list configurations (${response.statusCode})');
+      }
+    } on FormatException {
+      throw Exception('Server error: Invalid data format received.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 
   @override
-  Future<void> saveConfig(SystemConfig config) async {
-    final response = await _client.post(
-      Uri.parse('${ApiConstants.baseUrl}/api/v1/config'),
+  Future<SystemConfig> getConfig(int id) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/$id'),
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server error: Non-JSON response (Status: ${response.statusCode})');
+      }
+
+      if (response.statusCode == 200) {
+        return SystemConfig.fromJson(jsonDecode(response.body));
+      } else {
+        throw Exception('Failed to load configuration (${response.statusCode})');
+      }
+    } on FormatException {
+      throw Exception('Server error: Invalid data format received.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<SystemConfig> createConfig(SystemConfig config) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(config.toJson()),
+      );
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server error: Non-JSON response (Status: ${response.statusCode})');
+      }
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return SystemConfig.fromJson(jsonDecode(response.body));
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['detail'] ?? 'Failed to create configuration (${response.statusCode})');
+      }
+    } on FormatException {
+      throw Exception('Server error: Invalid data format received.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<SystemConfig> updateConfig(int id, SystemConfig config) async {
+    try {
+      final response = await _client.patch(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/$id'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(config.toJson()),
+      );
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server error: Non-JSON response (Status: ${response.statusCode})');
+      }
+
+      if (response.statusCode == 200) {
+        return SystemConfig.fromJson(jsonDecode(response.body));
+      } else {
+        final data = jsonDecode(response.body);
+        throw Exception(data['detail'] ?? 'Failed to update configuration (${response.statusCode})');
+      }
+    } on FormatException {
+      throw Exception('Server error: Invalid data format received.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<void> deleteConfig(int id) async {
+    final response = await _client.delete(
+      Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/$id'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(config.toJson()),
     );
 
-    if (response.statusCode != 200 && response.statusCode != 201) {
-      final data = jsonDecode(response.body);
-      String errorMessage = 'Failed to save configuration';
-      if (data is Map && data.containsKey('detail')) {
-        errorMessage = data['detail'].toString();
-      }
-      throw Exception(errorMessage);
+    if (response.statusCode != 204 && response.statusCode != 200) {
+      throw Exception('Failed to delete configuration');
     }
   }
 }

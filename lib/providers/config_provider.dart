@@ -13,16 +13,24 @@ class ConfigProvider extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
-  SystemConfig? _config;
-  SystemConfig? get config => _config;
+  List<SystemConfig> _configs = [];
+  List<SystemConfig> get configs => _configs;
 
-  Future<void> fetchConfig() async {
+  SystemConfig? get activeConfig {
+    try {
+      return _configs.firstWhere((config) => config.isActive);
+    } catch (_) {
+      return _configs.isNotEmpty ? _configs.first : null;
+    }
+  }
+
+  Future<void> fetchConfigs() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      _config = await _configRepository.getConfig();
+      _configs = await _configRepository.listConfigs();
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -32,14 +40,55 @@ class ConfigProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> saveConfig(SystemConfig config) async {
+  Future<bool> createConfig(SystemConfig config) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await _configRepository.saveConfig(config);
-      _config = config;
+      final newConfig = await _configRepository.createConfig(config);
+      _configs.add(newConfig);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateConfig(int id, SystemConfig config) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updated = await _configRepository.updateConfig(id, config);
+      final index = _configs.indexWhere((c) => c.id == id);
+      if (index != -1) {
+        _configs[index] = updated;
+      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteConfig(int id) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _configRepository.deleteConfig(id);
+      _configs.removeWhere((c) => c.id == id);
       _isLoading = false;
       notifyListeners();
       return true;
