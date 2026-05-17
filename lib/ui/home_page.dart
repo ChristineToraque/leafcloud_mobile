@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:leaf_cloud/ui/config_page.dart';
+import 'package:leaf_cloud/ui/config_list_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -45,10 +45,10 @@ class HomePage extends StatelessWidget {
               onTap: () {
                 // Close the drawer
                 Navigator.pop(context);
-                // Navigate to ConfigPage
+                // Navigate to ConfigListPage
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ConfigPage()),
+                  MaterialPageRoute(builder: (context) => const ConfigListPage()),
                 );
               },
             ),
@@ -57,7 +57,6 @@ class HomePage extends StatelessWidget {
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Logout'),
               onTap: () {
-                // Handle logout logic here
                 Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
               },
             ),

@@ -4,7 +4,8 @@ import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:provider/provider.dart';
 
 class ConfigPage extends StatefulWidget {
-  const ConfigPage({super.key});
+  final SystemConfig? configToEdit;
+  const ConfigPage({super.key, this.configToEdit});
 
   @override
   State<ConfigPage> createState() => _ConfigPageState();
@@ -16,33 +17,24 @@ class _ConfigPageState extends State<ConfigPage> {
   // Controllers
   final _tankNameController = TextEditingController();
   final _waterVolumeController = TextEditingController();
-  
   final _macroBrandController = TextEditingController();
   final _macroNController = TextEditingController();
   final _macroPController = TextEditingController();
   final _macroKController = TextEditingController();
-  
   final _microBrandController = TextEditingController();
   final _microNController = TextEditingController();
   final _microPController = TextEditingController();
   final _microKController = TextEditingController();
-  
   final _targetMacroDosageController = TextEditingController();
   final _targetMicroDosageController = TextEditingController();
+  bool _isActive = true;
 
   @override
   void initState() {
-    super.didChangeDependencies();
-    // Fetch current config when page loads
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await context.read<ConfigProvider>().fetchConfig();
-      if (!mounted) return;
-      final config = context.read<ConfigProvider>().config;
-      if (config != null) {
-        _populateFields(config);
-      }
-    });
     super.initState();
+    if (widget.configToEdit != null) {
+      _populateFields(widget.configToEdit!);
+    }
   }
 
   void _populateFields(SystemConfig config) {
@@ -58,6 +50,7 @@ class _ConfigPageState extends State<ConfigPage> {
     _microKController.text = config.microKPct.toString();
     _targetMacroDosageController.text = config.targetMacroDosageMlL.toString();
     _targetMicroDosageController.text = config.targetMicroDosageMlL.toString();
+    _isActive = config.isActive;
   }
 
   @override
@@ -81,6 +74,7 @@ class _ConfigPageState extends State<ConfigPage> {
     if (!_formKey.currentState!.validate()) return;
 
     final config = SystemConfig(
+      id: widget.configToEdit?.id,
       tankName: _tankNameController.text,
       waterVolumeLiters: double.parse(_waterVolumeController.text),
       macroBrandName: _macroBrandController.text,
@@ -93,9 +87,17 @@ class _ConfigPageState extends State<ConfigPage> {
       microKPct: double.parse(_microKController.text),
       targetMacroDosageMlL: double.parse(_targetMacroDosageController.text),
       targetMicroDosageMlL: double.parse(_targetMicroDosageController.text),
+      isActive: _isActive,
     );
 
-    final success = await context.read<ConfigProvider>().saveConfig(config);
+    final provider = context.read<ConfigProvider>();
+    bool success;
+    
+    if (widget.configToEdit != null) {
+      success = await provider.updateConfig(widget.configToEdit!.id!, config);
+    } else {
+      success = await provider.createConfig(config);
+    }
 
     if (!mounted) return;
 
@@ -103,10 +105,10 @@ class _ConfigPageState extends State<ConfigPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Configuration saved successfully!'), backgroundColor: Colors.green),
       );
+      Navigator.pop(context);
     } else {
-      final error = context.read<ConfigProvider>().errorMessage;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error ?? 'Failed to save configuration'), backgroundColor: Colors.red),
+        SnackBar(content: Text(provider.errorMessage ?? 'Failed to save configuration'), backgroundColor: Colors.red),
       );
     }
   }
@@ -115,92 +117,95 @@ class _ConfigPageState extends State<ConfigPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('System Configuration'),
+        title: Text(widget.configToEdit != null ? 'Edit Configuration' : 'New Configuration'),
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
       ),
-      body: Consumer<ConfigProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading && provider.config == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionTitle('1. Tank / Reservoir Configuration'),
-                  _buildTextField(
-                    label: 'Tank Name',
-                    controller: _tankNameController,
-                    placeholder: 'e.g., "Lettuce Bed A"',
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : (v.length > 50 ? 'Max 50 chars' : null),
-                  ),
-                  _buildTextField(
-                    label: 'Total Water Volume (Liters)',
-                    controller: _waterVolumeController,
-                    placeholder: 'e.g., 50.0',
-                    isNumeric: true,
-                    validator: (v) {
-                      final val = double.tryParse(v ?? '');
-                      if (val == null) return 'Required';
-                      if (val <= 0) return 'Must be > 0';
-                      return null;
-                    },
-                  ),
-                  const Divider(height: 32),
-                  
-                  _buildSectionTitle('2. Fertilizer Chemical Profile'),
-                  _buildSubSectionTitle('A. Macro Fertilizer Profile'),
-                  _buildTextField(
-                    label: 'Macro Fertilizer Brand Name',
-                    controller: _macroBrandController,
-                    placeholder: 'e.g., "MasterBlend 8-15-36"',
-                  ),
-                  _buildNPKRow(_macroNController, _macroPController, _macroKController),
-                  
-                  const SizedBox(height: 16),
-                  _buildSubSectionTitle('B. Micro Fertilizer Profile'),
-                  _buildTextField(
-                    label: 'Micro Fertilizer Brand Name',
-                    controller: _microBrandController,
-                    placeholder: 'e.g., "NutriHydro Micro"',
-                  ),
-                  _buildNPKRow(_microNController, _microPController, _microKController),
-                  
-                  const Divider(height: 32),
-                  
-                  _buildSectionTitle('3. Target Recipe Dosage Fields'),
-                  _buildTextField(
-                    label: 'Target Macro Dosage (mL/L)',
-                    controller: _targetMacroDosageController,
-                    placeholder: '2.0',
-                    isNumeric: true,
-                    validator: (v) {
-                      final val = double.tryParse(v ?? '');
-                      if (val == null) return 'Required';
-                      if (val < 0) return 'Must be >= 0';
-                      return null;
-                    },
-                  ),
-                  _buildTextField(
-                    label: 'Target Micro Dosage (mL/L)',
-                    controller: _targetMicroDosageController,
-                    placeholder: '2.0',
-                    isNumeric: true,
-                    validator: (v) {
-                      final val = double.tryParse(v ?? '');
-                      if (val == null) return 'Required';
-                      if (val < 0) return 'Must be >= 0';
-                      return null;
-                    },
-                  ),
-                  
-                  const SizedBox(height: 32),
-                  SizedBox(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionTitle('1. Tank / Reservoir Configuration'),
+              _buildTextField(
+                label: 'Tank Name',
+                controller: _tankNameController,
+                placeholder: 'e.g., "Lettuce Bed A"',
+                validator: (v) => (v == null || v.isEmpty) ? 'Required' : (v.length > 50 ? 'Max 50 chars' : null),
+              ),
+              _buildTextField(
+                label: 'Total Water Volume (Liters)',
+                controller: _waterVolumeController,
+                placeholder: 'e.g., 50.0',
+                isNumeric: true,
+                validator: (v) {
+                  final val = double.tryParse(v ?? '');
+                  if (val == null) return 'Required';
+                  if (val <= 0) return 'Must be > 0';
+                  return null;
+                },
+              ),
+              SwitchListTile(
+                title: const Text('Set as Active Configuration', style: TextStyle(fontWeight: FontWeight.bold)),
+                subtitle: const Text('Only active configurations are used for calculations.'),
+                value: _isActive,
+                activeThumbColor: const Color(0xFF4E7A43),
+                onChanged: (val) => setState(() => _isActive = val),
+              ),
+              const Divider(height: 32),
+              
+              _buildSectionTitle('2. Fertilizer Chemical Profile'),
+              _buildSubSectionTitle('A. Macro Fertilizer Profile'),
+              _buildTextField(
+                label: 'Macro Brand',
+                controller: _macroBrandController,
+                placeholder: 'e.g., "MasterBlend"',
+              ),
+              _buildNPKRow(_macroNController, _macroPController, _macroKController),
+              
+              const SizedBox(height: 16),
+              _buildSubSectionTitle('B. Micro Fertilizer Profile'),
+              _buildTextField(
+                label: 'Micro Brand',
+                controller: _microBrandController,
+                placeholder: 'e.g., "NutriHydro"',
+              ),
+              _buildNPKRow(_microNController, _microPController, _microKController),
+              
+              const Divider(height: 32),
+              
+              _buildSectionTitle('3. Target Recipe Dosage'),
+              _buildTextField(
+                label: 'Target Macro Dosage (mL/L)',
+                controller: _targetMacroDosageController,
+                placeholder: '2.0',
+                isNumeric: true,
+                validator: (v) {
+                  final val = double.tryParse(v ?? '');
+                  if (val == null) return 'Required';
+                  if (val < 0) return 'Must be >= 0';
+                  return null;
+                },
+              ),
+              _buildTextField(
+                label: 'Target Micro Dosage (mL/L)',
+                controller: _targetMicroDosageController,
+                placeholder: '2.0',
+                isNumeric: true,
+                validator: (v) {
+                  final val = double.tryParse(v ?? '');
+                  if (val == null) return 'Required';
+                  if (val < 0) return 'Must be >= 0';
+                  return null;
+                },
+              ),
+              
+              const SizedBox(height: 32),
+              Consumer<ConfigProvider>(
+                builder: (context, provider, child) {
+                  return SizedBox(
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
@@ -212,15 +217,16 @@ class _ConfigPageState extends State<ConfigPage> {
                       ),
                       child: provider.isLoading
                           ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text('Save Configuration', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                          : Text(widget.configToEdit != null ? 'Update Settings' : 'Create Configuration', 
+                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                ],
+                  );
+                },
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -266,11 +272,11 @@ class _ConfigPageState extends State<ConfigPage> {
   Widget _buildNPKRow(TextEditingController n, TextEditingController p, TextEditingController k) {
     return Row(
       children: [
-        Expanded(child: _buildPercentageField('Total N (%)', n)),
+        Expanded(child: _buildPercentageField('N %', n)),
         const SizedBox(width: 8),
-        Expanded(child: _buildPercentageField('Avail. P (%)', p)),
+        Expanded(child: _buildPercentageField('P %', p)),
         const SizedBox(width: 8),
-        Expanded(child: _buildPercentageField('Soluble K (%)', k)),
+        Expanded(child: _buildPercentageField('K %', k)),
       ],
     );
   }
@@ -281,7 +287,6 @@ class _ConfigPageState extends State<ConfigPage> {
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         labelText: label,
-        suffixText: '%',
         border: const OutlineInputBorder(),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
