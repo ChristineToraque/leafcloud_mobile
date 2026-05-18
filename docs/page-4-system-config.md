@@ -1,48 +1,46 @@
-# System Configuration Feature
+# Reservoir Configuration Management
 
-This document describes the implementation of the System Configuration feature, which allows users to manage tank settings and fertilizer profiles.
+This document describes how users manage their physical hydroponic setup within the app.
 
 ## 1. Overview
-The System Configuration feature enables zero-configuration chemical calculations on the backend by storing physical tank dimensions and fertilizer chemical profiles in the database.
+The Reservoir Configuration feature allows users to define their tank dimensions and fertilizer chemical profiles. This data is critical for the backend's AI to calculate precise N-P-K mass and generate top-up instructions.
 
-## 2. Implementation Details
+## 2. Full CRUD Implementation
+The app supports a full suite of management operations via the `/api/v1/tank-configs/` endpoints:
 
-### A. Data Model (`lib/models/system_config_model.dart`)
-A robust `SystemConfig` class that maps directly to the database schema. It includes:
-- **Tank Info**: Name and Volume.
-- **Fertilizer Profiles**: Brand names and N-P-K percentages for both Macro and Micro fertilizers.
-- **Dosage Targets**: mL per Liter targets for precise mixing.
+### A. Reservoir List (`lib/ui/config_list_page.dart`)
+- Displays all configured reservoirs.
+- Highlights the **Active** reservoir with a green border and checkmark icon.
+- Features a **Pull-to-Refresh** mechanism to sync with the server.
+- Uses a **Floating Action Button (+)** to add new configurations.
 
-### B. Repository Pattern (`lib/repositories/`)
-- **`IConfigRepository`**: An interface following the Dependency Inversion Principle.
-- **`ConfigRepository`**: Concrete implementation using the `http` package to communicate with the `${baseUrl}/api/v1/config` endpoint.
+### B. Edit/Create Form (`lib/ui/config_page.dart`)
+A comprehensive form that handles both new and existing configurations.
+- **Reservoir Info**: Name (max 50 chars) and Water Volume (liters).
+- **Active Status Toggle**: A switch to set the reservoir as the primary monitoring target.
+- **Fertilizer Profiles**:
+    - **Macro Profile**: Brand name and N-P-K percentages.
+    - **Micro Profile**: Brand name and N-P-K percentages.
+- **Dosage Targets**: Intended mL per Liter dosage for calculations.
 
-### C. State Management (`lib/providers/config_provider.dart`)
-Uses the `Provider` pattern to manage the configuration state:
-- **`fetchConfig()`**: Retrieves the latest settings from the server.
-- **`saveConfig()`**: Sends updated settings to the backend with error handling.
+## 3. Data & Logic Layers
 
-### D. User Interface (`lib/ui/config_page.dart`)
-A comprehensive form with strict validation:
-- **Numeric Inputs**: Uses specialized keyboards for decimal entry.
-- **Validation Rules**:
-    - Required fields.
-    - Percentages constrained between 0.0 and 100.0.
-    - Water volume must be greater than 0.
-    - Tank name limited to 50 characters.
+### Repository Pattern (`lib/repositories/config_repository.dart`)
+- Communicates with the backend using `GET`, `POST`, and `PATCH` methods.
+- Includes **Robust Error Handling**: Checks for non-JSON responses and handles `500 Internal Server Errors` gracefully without crashing the app.
 
-## 3. Navigation
-Access to the configuration is provided through a **Navigation Drawer** in the `HomePage`.
+### State Management (`lib/providers/config_provider.dart`)
+- **`configs`**: The list of all reservoirs.
+- **`activeConfig`**: A computed getter that finds the reservoir marked as `is_active`.
+- **`isLoading`**: Tracks API request status for UI feedback.
 
-```dart
-ListTile(
-  leading: Icon(Icons.settings),
-  title: Text('System Configuration'),
-  onTap: () => Navigator.push(...)
-)
-```
-
-## 4. SOLID Compliance
-- **SRP**: UI (`ConfigPage`), Logic (`ConfigProvider`), and Data (`AuthRepository`) are isolated.
-- **OCP**: The system is open for extension (e.g., adding a `LocalConfigRepository`) via the interface.
-- **DIP**: High-level modules (UI/Provider) depend on abstractions (`IConfigRepository`), not concrete implementations.
+## 4. Database Mapping
+The configuration fields map directly to the backend database schema:
+| UI Field | API/DB Key | Type |
+|---|---|---|
+| Reservoir Name | `tank_name` | String |
+| Water Volume | `water_volume_liters` | Float |
+| Is Active | `is_active` | Boolean |
+| Macro Brand | `macro_brand_name` | String |
+| N-P-K % | `macro_n_pct`, etc. | Float |
+| Target Dosage | `target_macro_dosage_mll` | Float |

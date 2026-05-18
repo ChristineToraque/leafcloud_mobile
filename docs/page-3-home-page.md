@@ -1,34 +1,29 @@
-# Home Landing Screen
+# Main Application Structure & Navigation
 
-This document describes the implementation of the landing screen shown after a successful login.
+This document describes the main application shell and how users navigate between features.
 
-## 1. Overview
-The `HomePage` serves as the first entry point for authenticated users. Currently, it is a simplified placeholder displaying a "Hello!" message.
+## 1. Home Page Overview (`lib/ui/home_page.dart`)
+The `HomePage` acts as the primary container for the application after login. Instead of being a standalone screen, it now hosts the **Dashboard** as its main content.
 
-## 2. Implementation Details (`lib/ui/home_page.dart`)
-- **Widget Type**: `StatelessWidget` (since it currently has no dynamic state).
-- **UI Components**:
-    - **AppBar**: Contains the title "LeafCloud Home".
-    - **Body**: A centered `Text` widget with a large, bold font in the forest green brand color (`#4E7A43`).
+## 2. Navigation Drawer
+The app uses a standard Material **Drawer** for high-level navigation. It includes:
+- **Drawer Header**: Displays the LeafCloud branding and logo.
+- **Real-time Dashboard**: Links to the main monitoring view.
+- **System Configuration**: Navigates to the reservoir management list.
+- **Logout**: Clears the session and returns the user to the login screen.
 
-## 3. Navigation Flow
-The navigation is triggered in `lib/ui/login_page.dart` within the `_handleLogin` method.
+## 3. Feature Integration
+- **Dashboard (`lib/ui/dashboard_screen.dart`)**: Embedded directly in the body of the `HomePage`. This provides the user with immediate access to lettuce monitoring data.
+- **Configuration (`lib/ui/config_list_page.dart`)**: Accessible via the drawer. It allows users to manage their hardware setup.
 
-```dart
-if (success) {
-  // ... show snackbar ...
-  
-  // Navigate to HomePage
-  Navigator.pushReplacement(
-    context,
-    MaterialPageRoute(builder: (context) => const HomePage()),
-  );
-}
-```
+## 4. State Management Integration
+The `HomePage` and its sub-pages are wrapped in a `MultiProvider` defined in `main.dart`. This ensures that:
+- **`AuthProvider`**: Manages user identity and logout logic.
+- **`ConfigProvider`**: Identifies which reservoir is currently "Active".
+- **`IotProvider`**: Provides real-time telemetry data for the active reservoir.
 
-- **`Navigator.pushReplacement`**: Used to ensure that the user cannot go back to the login screen by pressing the back button after they have already logged in.
-
-## 4. Future Enhancements
-- Integration with user data from `AuthProvider`.
-- Implementation of the lettuce monitoring dashboard.
-- Logout functionality.
+## 5. UI Layout
+The `HomePage` uses a `Scaffold` with:
+- **`AppBar`**: Centered "LeafCloud" title with a menu icon to open the drawer.
+- **`Drawer`**: Side-navigation menu.
+- **`Body`**: The `DashboardScreen` widget.

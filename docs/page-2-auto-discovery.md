@@ -6,10 +6,10 @@ This document explains how LeafCloud automatically discovers the backend server 
 In a local development or IoT environment:
 - **`localhost`** only works if the server and app are on the same machine.
 - **Static IPs** are unreliable because routers assign different IPs via DHCP.
-- **Manual Config** (editing `.env`) is a poor user experience for mobile apps.
+- **Manual Config** is a poor user experience for mobile apps.
 
 ## 2. The Solution: Multicast DNS (mDNS)
-LeafCloud uses the **mDNS** protocol (also known as Bonjour or Zeroconf). The backend "announces" itself to the network, and the Flutter app "listens" for that announcement.
+LeafCloud uses the **mDNS** protocol (Bonjour/Zeroconf). The backend "announces" itself to the network, and the Flutter app "listens" for that announcement.
 
 ## 3. Implementation Details
 
@@ -17,32 +17,24 @@ LeafCloud uses the **mDNS** protocol (also known as Bonjour or Zeroconf). The ba
 This is a singleton service that manages the network scan.
 - **Package**: `nsd` (Network Service Discovery).
 - **Service Type**: `_leafcloud._tcp`.
+- **Reliability Fix**: The service extracts the actual **IP Address** from `service.addresses` instead of the `.local` hostname to bypass DNS resolution issues on some networks.
 - **Logic**:
     1. On app startup (`main.dart`), `initDiscovery()` is called.
-    2. It scans the local WiFi for any service matching `_leafcloud._tcp`.
-    3. Once found, it extracts the `host` (IP) and `port`.
-    4. It calls `ApiConstants.updateBaseUrl()` with the new address.
-    5. It stops the scan to preserve battery and CPU.
+    2. It scans the WiFi for services matching `_leafcloud._tcp`.
+    3. Once found, it extracts the IP and port.
+    4. It updates the global `ApiConstants.baseUrl`.
+    5. It stops the scan to save battery and CPU.
 
 ### B. Dynamic Constants (`lib/core/constants.dart`)
-The `ApiConstants` class is designed with a "Discovery Priority":
-1. **Priority 1**: `_discoveredBaseUrl` (Value found via mDNS).
-2. **Priority 2**: `http://localhost:8000` (Hardcoded safety default for same-machine dev).
+The `ApiConstants` class provides a `connectionNotifier` (`ValueNotifier`) that allows the UI to react instantly when a server is discovered.
 
-### C. Initialization (`lib/main.dart`)
-```dart
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Start background discovery
-  DiscoveryService().initDiscovery();
-  
-  runApp(const LoginApp());
-}
-```
+### C. Visual Feedback (`lib/ui/login_page.dart`)
+The app displays a connection badge at the top:
+- **Orange**: "Searching for server..."
+- **Green**: "Connected: http://[IP]:8000"
 
 ## 4. Server-Side Requirements
-For this to work, your backend must broadcast its presence. 
+Your backend must broadcast its presence using the `_leafcloud._tcp` service type. 
 
 **Example (Python with `zeroconf`):**
 ```python
@@ -61,7 +53,7 @@ zeroconf = Zeroconf()
 zeroconf.register_service(info)
 ```
 
-## 5. Benefits
-- **Plug and Play**: Users just connect to the same WiFi and the app "just works".
-- **Cross-Platform**: Works on Android, iOS, and Desktop.
-- **Battery Efficient**: The service stops scanning as soon as the server is identified.
+## 5. Platform-Specific Fixes (macOS)
+To allow the app to discover and connect to servers, the following **Entitlements** were added to the macOS sandbox:
+- `com.apple.security.network.client`: Allows outgoing network connections.
+- `com.apple.security.network.server`: Allows listening for mDNS broadcasts.
