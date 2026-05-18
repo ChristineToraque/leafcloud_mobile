@@ -4,8 +4,11 @@ import 'package:leaf_cloud/repositories/auth_repository.dart';
 import 'package:leaf_cloud/repositories/auth_repository_interface.dart';
 import 'package:leaf_cloud/repositories/config_repository.dart';
 import 'package:leaf_cloud/repositories/config_repository_interface.dart';
+import 'package:leaf_cloud/repositories/iot_repository.dart';
+import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
+import 'package:leaf_cloud/providers/iot_provider.dart';
 import 'package:leaf_cloud/services/discovery_service.dart';
 import 'package:leaf_cloud/ui/login_page.dart';
 
@@ -25,6 +28,9 @@ Future<void> main() async {
         Provider<IConfigRepository>(
           create: (_) => ConfigRepository(),
         ),
+        Provider<IIotRepository>(
+          create: (_) => IotRepository(),
+        ),
         // Providers
         ChangeNotifierProvider(
           create: (context) => AuthProvider(
@@ -34,6 +40,11 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => ConfigProvider(
             Provider.of<IConfigRepository>(context, listen: false),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => IotProvider(
+            Provider.of<IIotRepository>(context, listen: false),
           ),
         ),
       ],
