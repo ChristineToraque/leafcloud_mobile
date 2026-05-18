@@ -178,16 +178,6 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       },
                     ),
-                    const SizedBox(height: 64),
-                    TextButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(Icons.settings, size: 20),
-                      label: const Text('Connection Settings'),
-                      style: TextButton.styleFrom(
-                        foregroundColor: const Color(0xFF4E7A43),
-                        textStyle: const TextStyle(fontWeight: FontWeight.w600),
-                      ),
-                    ),
                   ],
                 ),
               ),

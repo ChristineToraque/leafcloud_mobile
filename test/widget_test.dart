@@ -29,7 +29,6 @@ void main() {
     expect(find.text('LeafCloud'), findsOneWidget);
     expect(find.text('Smart Hydroponics Monitoring'), findsOneWidget);
     expect(find.text('Login'), findsOneWidget);
-    expect(find.text('Connection Settings'), findsOneWidget);
 
     // Interact with form.
     await tester.enterText(find.byType(TextFormField).at(0), 'user@leafcloud.com');
