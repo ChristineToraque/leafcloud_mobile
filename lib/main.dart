@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:leaf_cloud/repositories/auth_repository.dart';
 import 'package:leaf_cloud/repositories/auth_repository_interface.dart';
 import 'package:leaf_cloud/repositories/config_repository.dart';
@@ -9,15 +8,21 @@ import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/providers/iot_provider.dart';
+import 'package:leaf_cloud/providers/alert_provider.dart';
 import 'package:leaf_cloud/services/discovery_service.dart';
+import 'package:leaf_cloud/services/notification_service.dart';
 import 'package:leaf_cloud/ui/login_page.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
-  // Start searching for the server in the background
+
+  // Initialize notification service
+  await NotificationService().init();
+
+  // Start background discovery
   DiscoveryService().initDiscovery();
-  
+
   runApp(
     MultiProvider(
       providers: [
@@ -46,6 +51,14 @@ Future<void> main() async {
           create: (context) => IotProvider(
             Provider.of<IIotRepository>(context, listen: false),
           ),
+        ),
+        ChangeNotifierProxyProvider<ConfigProvider, AlertProvider>(
+          lazy: false,
+          create: (context) => AlertProvider(
+            Provider.of<IIotRepository>(context, listen: false),
+            Provider.of<ConfigProvider>(context, listen: false),
+          ),
+          update: (context, config, previous) => previous!,
         ),
       ],
       child: const LoginApp(),
