@@ -17,8 +17,12 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize notification service
-  await NotificationService().init();
+  // Initialize notification service (wrapped in try-catch to prevent black screen if it fails)
+  try {
+    await NotificationService().init();
+  } catch (e) {
+    debugPrint('Failed to initialize NotificationService: $e');
+  }
 
   // Start background discovery
   DiscoveryService().initDiscovery();
