@@ -11,7 +11,7 @@ class NotificationService {
   Future<void> init() async {
     const fln.AndroidInitializationSettings androidSettings = fln.AndroidInitializationSettings('@mipmap/ic_launcher');
     
-    const fln.DarwinInitializationSettings iosSettings = fln.DarwinInitializationSettings(
+    const fln.DarwinInitializationSettings darwinSettings = fln.DarwinInitializationSettings(
       requestAlertPermission: true,
       requestBadgePermission: true,
       requestSoundPermission: true,
@@ -19,7 +19,8 @@ class NotificationService {
 
     const fln.InitializationSettings settings = fln.InitializationSettings(
       android: androidSettings,
-      iOS: iosSettings,
+      iOS: darwinSettings,
+      macOS: darwinSettings,
     );
 
     await _notificationsPlugin.initialize(
@@ -44,7 +45,7 @@ class NotificationService {
       color: Color(0xFF4E7A43),
     );
 
-    const fln.DarwinNotificationDetails iosDetails = fln.DarwinNotificationDetails(
+    const fln.DarwinNotificationDetails darwinDetails = fln.DarwinNotificationDetails(
       presentAlert: true,
       presentBadge: true,
       presentSound: true,
@@ -52,7 +53,8 @@ class NotificationService {
 
     const fln.NotificationDetails details = fln.NotificationDetails(
       android: androidDetails,
-      iOS: iosDetails,
+      iOS: darwinDetails,
+      macOS: darwinDetails,
     );
 
     await _notificationsPlugin.show(
