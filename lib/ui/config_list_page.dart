@@ -23,7 +23,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Tank Configurations'),
+        title: const Text('Reservoir Configurations'),
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
       ),
@@ -77,7 +77,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
                     leading: CircleAvatar(
                       backgroundColor: config.isActive ? const Color(0xFF4E7A43) : Colors.grey[300],
                       child: Icon(
-                        config.isActive ? Icons.check : Icons.inventory_2,
+                        config.isActive ? Icons.check : Icons.water_drop,
                         color: Colors.white,
                       ),
                     ),

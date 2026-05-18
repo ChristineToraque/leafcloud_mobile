@@ -128,9 +128,9 @@ class _ConfigPageState extends State<ConfigPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildSectionTitle('1. Tank / Reservoir Configuration'),
+              _buildSectionTitle('1. Reservoir Configuration'),
               _buildTextField(
-                label: 'Tank Name',
+                label: 'Reservoir Name',
                 controller: _tankNameController,
                 placeholder: 'e.g., "Lettuce Bed A"',
                 validator: (v) => (v == null || v.isEmpty) ? 'Required' : (v.length > 50 ? 'Max 50 chars' : null),
