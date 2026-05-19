@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:leaf_cloud/ui/config_list_page.dart';
 import 'package:leaf_cloud/ui/dashboard_screen.dart';
 import 'package:leaf_cloud/ui/history_screen.dart';
+import 'package:leaf_cloud/ui/alerts_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -39,6 +40,18 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
+            ),
+            ListTile(
+              leading: const Icon(Icons.notifications_active, color: Color(0xFF4E7A43)),
+              title: const Text('Nutrient Alerts'),
+              subtitle: const Text('Top-up instructions'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const AlertsScreen()),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.history, color: Color(0xFF4E7A43)),

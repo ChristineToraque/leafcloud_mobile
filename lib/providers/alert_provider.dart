@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:leaf_cloud/models/alert_model.dart';
 import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
 import 'package:leaf_cloud/services/notification_service.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
@@ -11,16 +12,20 @@ class AlertProvider extends ChangeNotifier {
 
   Timer? _pollingTimer;
   bool _isPolling = false;
+  bool _isLoading = false;
 
+  final Map<int, AlertStatus> _alerts = {};
+  
   AlertProvider(this._repository, this._configProvider) {
     _configProvider.addListener(_onConfigChanged);
     _startPolling();
   }
 
+  bool get isLoading => _isLoading;
+  Map<int, AlertStatus> get alerts => _alerts;
+
   void _onConfigChanged() {
-    // If the active tank changes, we might want to reset polling or just continue
-    // Since we always poll for the active tank, we just keep going.
-    // If no active tank, polling will just fail or we can skip it.
+    _checkAllAlerts();
   }
 
   void _startPolling() {
@@ -28,27 +33,50 @@ class AlertProvider extends ChangeNotifier {
     _isPolling = true;
     
     // Poll every 5 minutes as per documentation
-    _pollingTimer = Timer.periodic(const Duration(minutes: 5), (_) => _checkAlerts());
+    _pollingTimer = Timer.periodic(const Duration(minutes: 5), (_) => _checkAllAlerts());
     
     // Also check immediately on start
-    _checkAlerts();
+    _checkAllAlerts();
   }
 
-  Future<void> _checkAlerts() async {
-    final activeConfig = _configProvider.activeConfig;
-    if (activeConfig == null || activeConfig.id == null) return;
+  Future<void> refresh() => _checkAllAlerts();
+
+  Future<void> _checkAllAlerts() async {
+    if (_isLoading) return;
+    
+    _isLoading = true;
+    notifyListeners();
+
+    final configs = _configProvider.configs;
+    if (configs.isEmpty) {
+      _isLoading = false;
+      notifyListeners();
+      return;
+    }
 
     try {
-      final status = await _repository.getAlertStatus(activeConfig.id!);
-      if (status.hasAlert) {
-        await _notificationService.showAlertNotification(
-          id: activeConfig.id!,
-          title: 'LeafCloud ${status.level}',
-          body: status.message ?? 'Top-up required for ${activeConfig.tankName}',
-        );
+      for (final config in configs) {
+        if (config.id == null) continue;
+        
+        try {
+          final status = await _repository.getAlertStatus(config.id!);
+          _alerts[config.id!] = status;
+          
+          // Notify if alert is triggered
+          if (status.hasAlert) {
+            await _notificationService.showAlertNotification(
+              id: config.id!,
+              title: 'LeafCloud ${status.level}: ${config.tankName}',
+              body: status.message ?? 'Top-up required',
+            );
+          }
+        } catch (e) {
+          debugPrint('Error polling alerts for tank ${config.id}: $e');
+        }
       }
-    } catch (e) {
-      debugPrint('Error polling alerts: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

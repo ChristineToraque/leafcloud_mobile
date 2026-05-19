@@ -33,11 +33,19 @@ Added `<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>` 
 ### iOS (`Info.plist`)
 Maintains `NSAppTransportSecurity` arbitrary loads to ensure it can reach the local server discovery IP during background polls.
 
+### D. Nutrient Alerts Screen (`lib/ui/alerts_screen.dart`)
+A dedicated screen that provides a comprehensive view of all reservoirs and their nutrient statuses.
+- **Visual Feedback**: Uses color-coded icons (Green for Normal, Orange for Warning, Red for Critical).
+- **Expansion Detail**: Each reservoir card can be expanded to show detailed top-up instructions for both Macro and Micro fertilizers.
+- **Manual Refresh**: Includes a refresh button to sync alert statuses across all reservoirs on demand.
+
 ## 4. Polling Flow
 1. **App Launch**: `NotificationService.init()` is called in `main.dart`.
-2. **Provider Registration**: `AlertProvider` is registered in `MultiProvider` with `lazy: false` to ensure it starts polling immediately upon app startup.
-3. **Background Check**: The `Timer.periodic` runs in the background while the app is alive or in the background (platform-dependent).
-4. **User Action**: Tapping a notification opens the app (handled by `onDidReceiveNotificationResponse`).
+2. **Provider Registration**: `AlertProvider` is registered in `MultiProvider` with `lazy: false`.
+3. **Multi-Reservoir Check**: The provider loops through **all** configured reservoirs and fetches their specific alert status.
+4. **User Action**: 
+    - Tapping the "Nutrient Alerts" item in the drawer opens the `AlertsScreen`.
+    - Tapping a notification opens the app to the last viewed screen (can be extended to route directly to alerts).
 
 ## 5. Alert Thresholds
 As defined by the server:
