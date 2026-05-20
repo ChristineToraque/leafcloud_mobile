@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:leaf_cloud/providers/config_provider.dart';
+import 'package:leaf_cloud/providers/iot_provider.dart';
 import 'package:leaf_cloud/ui/config_list_page.dart';
 import 'package:leaf_cloud/ui/dashboard_screen.dart';
 import 'package:leaf_cloud/ui/history_screen.dart';
 import 'package:leaf_cloud/ui/alerts_screen.dart';
+import 'package:leaf_cloud/ui/calibration_screen.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -15,6 +19,20 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh Dashboard',
+            onPressed: () async {
+              final configProvider = context.read<ConfigProvider>();
+              await configProvider.fetchConfigs();
+              final activeConfig = configProvider.activeConfig;
+              if (activeConfig != null && context.mounted) {
+                await context.read<IotProvider>().fetchDashboard(activeConfig.id!);
+              }
+            },
+          ),
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -67,13 +85,25 @@ class HomePage extends StatelessWidget {
             ),
             ListTile(
               leading: const Icon(Icons.settings, color: Color(0xFF4E7A43)),
-              title: const Text('System Configuration'),
+              title: const Text('Reservoir Settings'),
               subtitle: const Text('Manage reservoir and fertilizers'),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const ConfigListPage()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.compass_calibration, color: Color(0xFF4E7A43)),
+              title: const Text('Sensor Calibration'),
+              subtitle: const Text('Calibrate pH and EC sensors'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const CalibrationScreen()),
                 );
               },
             ),

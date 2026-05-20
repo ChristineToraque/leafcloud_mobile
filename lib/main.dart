@@ -5,10 +5,13 @@ import 'package:leaf_cloud/repositories/config_repository.dart';
 import 'package:leaf_cloud/repositories/config_repository_interface.dart';
 import 'package:leaf_cloud/repositories/iot_repository.dart';
 import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
+import 'package:leaf_cloud/repositories/calibration_repository.dart';
+import 'package:leaf_cloud/repositories/calibration_repository_interface.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/providers/iot_provider.dart';
 import 'package:leaf_cloud/providers/alert_provider.dart';
+import 'package:leaf_cloud/providers/calibration_provider.dart';
 import 'package:leaf_cloud/services/discovery_service.dart';
 import 'package:leaf_cloud/services/notification_service.dart';
 import 'package:leaf_cloud/ui/login_page.dart';
@@ -40,6 +43,9 @@ Future<void> main() async {
         Provider<IIotRepository>(
           create: (_) => IotRepository(),
         ),
+        Provider<ICalibrationRepository>(
+          create: (_) => CalibrationRepository(),
+        ),
         // Providers
         ChangeNotifierProvider(
           create: (context) => AuthProvider(
@@ -54,6 +60,11 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (context) => IotProvider(
             Provider.of<IIotRepository>(context, listen: false),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => CalibrationProvider(
+            Provider.of<ICalibrationRepository>(context, listen: false),
           ),
         ),
         ChangeNotifierProxyProvider<ConfigProvider, AlertProvider>(
