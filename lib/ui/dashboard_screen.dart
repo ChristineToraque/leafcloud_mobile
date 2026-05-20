@@ -38,22 +38,57 @@ class _DashboardScreenState extends State<DashboardScreen> {
         child: Consumer2<ConfigProvider, IotProvider>(
           builder: (context, configProvider, iotProvider, child) {
             if (configProvider.isLoading || iotProvider.isLoading) {
-              return const Center(child: CircularProgressIndicator());
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                  const Center(child: CircularProgressIndicator()),
+                ],
+              );
             }
 
             final activeConfig = configProvider.activeConfig;
             if (activeConfig == null) {
-              return const Center(
-                child: Text('No active reservoir configuration found.\nPlease set up a reservoir first.'),
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'No active reservoir configuration found.\nPlease set up a reservoir first.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ],
               );
             }
 
             final data = iotProvider.dashboardData;
             if (data == null) {
-              return const Center(
-                child: Text('No monitoring data available for this reservoir.'),
+              return ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.3),
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text(
+                        'No monitoring data available for this reservoir.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 16, color: Colors.grey),
+                      ),
+                    ),
+                  ),
+                ],
               );
             }
+
+            final isHealthy = data.healthStatus.toUpperCase() == 'HEALTHY';
+            final hasAnomaly = data.isAnomaly || (data.advisory?.summary == "AI Sensor Anomaly Detected");
 
             return SingleChildScrollView(
               padding: const EdgeInsets.all(16.0),
@@ -61,6 +96,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Profile Detected Banner
+                  _buildProfileBanner(data.profileDetected, isHealthy),
+                  const SizedBox(height: 16),
+
                   // Header Info
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -106,6 +145,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 24),
 
                   // Telemetry Grid
+                  _buildSectionTitle('Sensor Readings'),
+                  if (hasAnomaly) 
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8.0, top: 4.0),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.warning_amber_rounded, color: Colors.red, size: 16),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              'AI detected a potential sensor discrepancy.',
+                              style: TextStyle(color: Colors.red[700], fontSize: 12, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -113,9 +169,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     crossAxisSpacing: 12,
                     mainAxisSpacing: 12,
                     children: [
-                      _buildTelemetryCard('pH', data.telemetry.ph.toStringAsFixed(1), Icons.water_drop, Colors.blue),
-                      _buildTelemetryCard('EC', data.telemetry.ec.toStringAsFixed(2), Icons.bolt, Colors.orange),
-                      _buildTelemetryCard('Temp', '${data.telemetry.waterTemp}°C', Icons.thermostat, Colors.red),
+                      _buildTelemetryCard('pH', data.telemetry.ph.toStringAsFixed(1), Icons.water_drop, Colors.blue, hasAnomaly),
+                      _buildTelemetryCard('EC', data.telemetry.ec.toStringAsFixed(2), Icons.bolt, Colors.orange, hasAnomaly),
+                      _buildTelemetryCard('Temp', '${data.telemetry.waterTemp}°C', Icons.thermostat, Colors.red, false),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -132,7 +188,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.green.withValues(alpha: 0.2)),
+                      border: Border.all(color: (isHealthy ? Colors.green : Colors.orange).withValues(alpha: 0.2)),
                     ),
                     child: Column(
                       children: [
@@ -154,6 +210,39 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildProfileBanner(String profile, bool isHealthy) {
+    final baseColor = isHealthy ? const Color(0xFF4E7A43) : Colors.orange[800]!;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: baseColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: baseColor.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.info_outline, color: baseColor, size: 20),
+          const SizedBox(width: 12),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: const TextStyle(color: Colors.black87, fontSize: 14),
+                children: [
+                  const TextSpan(text: 'Current Profile: '),
+                  TextSpan(
+                    text: profile,
+                    style: TextStyle(fontWeight: FontWeight.bold, color: baseColor),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -211,7 +300,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStatusBadge(String status) {
-    final color = status.toLowerCase() == 'healthy' ? Colors.green : Colors.orange;
+    final isHealthy = status.toLowerCase() == 'healthy';
+    final color = isHealthy ? Colors.green : Colors.orange;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -226,20 +316,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildTelemetryCard(String label, String value, IconData icon, Color color) {
+  Widget _buildTelemetryCard(String label, String value, IconData icon, Color color, bool showWarning) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)],
+        border: showWarning ? Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1.5) : null,
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Stack(
         children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 4),
-          Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-          Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+          if (showWarning)
+            const Positioned(
+              top: 4,
+              right: 4,
+              child: Icon(Icons.warning, color: Colors.red, size: 14),
+            ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(height: 4),
+                Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+              ],
+            ),
+          ),
         ],
       ),
     );

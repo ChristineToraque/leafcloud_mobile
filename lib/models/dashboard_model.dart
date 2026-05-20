@@ -27,6 +27,7 @@ class NutrientEstimation {
   final double nGrams;
   final double pGrams;
   final double kGrams;
+  final double microGrams;
   final double totalEstimatedGrams;
   final String unit;
 
@@ -34,6 +35,7 @@ class NutrientEstimation {
     required this.nGrams,
     required this.pGrams,
     required this.kGrams,
+    required this.microGrams,
     required this.totalEstimatedGrams,
     this.unit = 'grams',
   });
@@ -43,6 +45,7 @@ class NutrientEstimation {
       nGrams: (json['n_grams'] as num).toDouble(),
       pGrams: (json['p_grams'] as num).toDouble(),
       kGrams: (json['k_grams'] as num).toDouble(),
+      microGrams: (json['micro_grams'] as num?)?.toDouble() ?? 0.0,
       totalEstimatedGrams: (json['total_estimated_grams'] as num).toDouble(),
       unit: json['unit'] ?? 'grams',
     );
@@ -102,6 +105,7 @@ class DashboardData {
   final String imageUrl;
   final String healthStatus;
   final String profileDetected;
+  final bool isAnomaly;
   final TelemetryData telemetry;
   final NutrientEstimation estimatedNutrients;
   final AdvisoryInsight? advisory;
@@ -114,6 +118,7 @@ class DashboardData {
     required this.imageUrl,
     required this.healthStatus,
     required this.profileDetected,
+    required this.isAnomaly,
     required this.telemetry,
     required this.estimatedNutrients,
     this.advisory,
@@ -121,18 +126,7 @@ class DashboardData {
   });
 
   factory DashboardData.fromJson(Map<String, dynamic> json) {
-    String imageUrl = json['image_url'] ?? '';
-    
-    // Logic to handle relative or localhost URLs
-    if (imageUrl.isNotEmpty) {
-      final baseUrl = ApiConstants.baseUrl;
-      if (imageUrl.startsWith('/')) {
-        imageUrl = '$baseUrl$imageUrl';
-      } else if (imageUrl.contains('localhost')) {
-        // Replace localhost with the actual discovered IP/base if needed
-        imageUrl = imageUrl.replaceFirst('http://localhost:8000', baseUrl);
-      }
-    }
+    final imageUrl = ApiConstants.normalizeImageUrl(json['image_url']);
 
     return DashboardData(
       tankId: json['tank_id'],
@@ -141,6 +135,7 @@ class DashboardData {
       imageUrl: imageUrl,
       healthStatus: json['health_status'],
       profileDetected: json['profile_detected'],
+      isAnomaly: json['is_anomaly'] ?? false,
       telemetry: TelemetryData.fromJson(json['telemetry']),
       estimatedNutrients: NutrientEstimation.fromJson(json['estimated_nutrients']),
       advisory: json['advisory'] != null ? AdvisoryInsight.fromJson(json['advisory']) : null,
