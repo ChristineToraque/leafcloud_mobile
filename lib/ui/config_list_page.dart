@@ -90,6 +90,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
                       children: [
                         const SizedBox(height: 4),
                         Text('Volume: ${config.waterVolumeLiters} L'),
+                        Text('Upload Interval: ${config.uploadIntervalSeconds}s'),
                         Text('Macro: ${config.macroBrandName}'),
                         if (config.isActive)
                           const Padding(

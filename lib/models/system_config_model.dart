@@ -13,6 +13,7 @@ class SystemConfig {
   final double targetMacroDosageMlL;
   final double targetMicroDosageMlL;
   final bool isActive;
+  final int uploadIntervalSeconds;
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -31,6 +32,7 @@ class SystemConfig {
     required this.targetMacroDosageMlL,
     required this.targetMicroDosageMlL,
     this.isActive = true,
+    this.uploadIntervalSeconds = 60,
     this.createdAt,
     this.updatedAt,
   });
@@ -50,6 +52,7 @@ class SystemConfig {
       'target_macro_dosage_mll': targetMacroDosageMlL,
       'target_micro_dosage_mll': targetMicroDosageMlL,
       'is_active': isActive,
+      'upload_interval_seconds': uploadIntervalSeconds,
     };
   }
 
@@ -69,6 +72,7 @@ class SystemConfig {
       targetMacroDosageMlL: (json['target_macro_dosage_mll'] as num?)?.toDouble() ?? 0.0,
       targetMicroDosageMlL: (json['target_micro_dosage_mll'] as num?)?.toDouble() ?? 0.0,
       isActive: json['is_active'] ?? true,
+      uploadIntervalSeconds: json['upload_interval_seconds'] ?? 60,
       createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
       updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
     );

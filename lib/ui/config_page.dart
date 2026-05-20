@@ -17,6 +17,7 @@ class _ConfigPageState extends State<ConfigPage> {
   // Controllers
   final _tankNameController = TextEditingController();
   final _waterVolumeController = TextEditingController();
+  final _uploadIntervalController = TextEditingController(text: '60');
   final _macroBrandController = TextEditingController();
   final _macroNController = TextEditingController();
   final _macroPController = TextEditingController();
@@ -40,6 +41,7 @@ class _ConfigPageState extends State<ConfigPage> {
   void _populateFields(SystemConfig config) {
     _tankNameController.text = config.tankName;
     _waterVolumeController.text = config.waterVolumeLiters.toString();
+    _uploadIntervalController.text = config.uploadIntervalSeconds.toString();
     _macroBrandController.text = config.macroBrandName;
     _macroNController.text = config.macroNPct.toString();
     _macroPController.text = config.macroPPct.toString();
@@ -57,6 +59,7 @@ class _ConfigPageState extends State<ConfigPage> {
   void dispose() {
     _tankNameController.dispose();
     _waterVolumeController.dispose();
+    _uploadIntervalController.dispose();
     _macroBrandController.dispose();
     _macroNController.dispose();
     _macroPController.dispose();
@@ -88,6 +91,7 @@ class _ConfigPageState extends State<ConfigPage> {
       targetMacroDosageMlL: double.parse(_targetMacroDosageController.text),
       targetMicroDosageMlL: double.parse(_targetMicroDosageController.text),
       isActive: _isActive,
+      uploadIntervalSeconds: int.parse(_uploadIntervalController.text),
     );
 
     final provider = context.read<ConfigProvider>();
@@ -142,6 +146,18 @@ class _ConfigPageState extends State<ConfigPage> {
                 isNumeric: true,
                 validator: (v) {
                   final val = double.tryParse(v ?? '');
+                  if (val == null) return 'Required';
+                  if (val <= 0) return 'Must be > 0';
+                  return null;
+                },
+              ),
+              _buildTextField(
+                label: 'Upload Interval (Seconds)',
+                controller: _uploadIntervalController,
+                placeholder: 'e.g., 60',
+                isNumeric: true,
+                validator: (v) {
+                  final val = int.tryParse(v ?? '');
                   if (val == null) return 'Required';
                   if (val <= 0) return 'Must be > 0';
                   return null;
