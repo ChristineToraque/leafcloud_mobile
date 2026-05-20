@@ -1,3 +1,5 @@
+import 'package:leaf_cloud/core/constants.dart';
+
 class HistoryReading {
   final int readingId;
   final DateTime timestamp;
@@ -31,7 +33,7 @@ class HistoryReading {
     return HistoryReading(
       readingId: json['reading_id'],
       timestamp: DateTime.parse(json['timestamp']),
-      imageUrl: json['image_url'],
+      imageUrl: ApiConstants.normalizeImageUrl(json['image_url']),
       ph: (json['ph'] as num).toDouble(),
       ec: (json['ec'] as num).toDouble(),
       waterTemp: (json['water_temp'] as num).toDouble(),

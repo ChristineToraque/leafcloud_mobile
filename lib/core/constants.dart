@@ -16,4 +16,23 @@ class ApiConstants {
     _discoveredBaseUrl = newUrl;
     connectionNotifier.value = newUrl;
   }
+
+  /// Normalizes an image URL from the API to use the current dynamic baseUrl.
+  static String normalizeImageUrl(String? url) {
+    if (url == null || url.isEmpty) return '';
+    try {
+      final parsedUri = Uri.parse(url);
+      String path = parsedUri.path;
+      if (!path.startsWith('/')) {
+        path = '/$path';
+      }
+      final query = parsedUri.hasQuery ? '?${parsedUri.query}' : '';
+      return '$baseUrl$path$query';
+    } catch (_) {
+      if (url.startsWith('/')) {
+        return '$baseUrl$url';
+      }
+      return url;
+    }
+  }
 }
