@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/ui/config_page.dart';
+import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 import 'package:provider/provider.dart';
 
 class ConfigListPage extends StatefulWidget {
@@ -27,6 +28,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
       ),
+      bottomNavigationBar: const AppFooter(),
       body: Consumer<ConfigProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.configs.isEmpty) {

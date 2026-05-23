@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leaf_cloud/providers/alert_provider.dart';
 import 'package:leaf_cloud/models/alert_model.dart';
+import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 
 class AlertsScreen extends StatelessWidget {
   const AlertsScreen({super.key});
@@ -30,6 +31,7 @@ class AlertsScreen extends StatelessWidget {
           ),
         ],
       ),
+      bottomNavigationBar: const AppFooter(),
       body: Consumer<AlertProvider>(
         builder: (context, provider, child) {
           final alerts = provider.alerts.values.toList();
@@ -44,8 +46,7 @@ class AlertsScreen extends StatelessWidget {
             padding: const EdgeInsets.all(16),
             itemCount: alerts.length,
             itemBuilder: (context, index) {
-              final alert = alerts[index];
-              return _buildAlertCard(context, alert);
+              return _buildAlertCard(context, alerts[index]);
             },
           );
         },

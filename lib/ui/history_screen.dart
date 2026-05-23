@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:leaf_cloud/models/history_model.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/providers/iot_provider.dart';
+import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 import 'package:provider/provider.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -63,6 +64,7 @@ class _HistoryScreenState extends State<HistoryScreen> with SingleTickerProvider
           ],
         ),
       ),
+      bottomNavigationBar: const AppFooter(),
       body: Consumer2<ConfigProvider, IotProvider>(
         builder: (context, configProvider, iotProvider, _) {
           if (configProvider.activeConfig == null) {

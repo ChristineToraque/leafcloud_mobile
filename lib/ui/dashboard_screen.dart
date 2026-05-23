@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:leaf_cloud/models/dashboard_model.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/providers/iot_provider.dart';
+import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 import 'package:provider/provider.dart';
 
 class DashboardScreen extends StatefulWidget {
@@ -211,6 +212,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           },
         ),
       ),
+      bottomNavigationBar: const AppFooter(),
     );
   }
 
