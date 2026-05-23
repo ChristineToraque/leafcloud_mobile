@@ -20,10 +20,17 @@ This is a singleton service that manages the network scan.
 - **Reliability Fix**: The service extracts the actual **IP Address** from `service.addresses` instead of the `.local` hostname to bypass DNS resolution issues on some networks.
 - **Logic**:
     1. On app startup (`main.dart`), `initDiscovery()` is called.
-    2. It scans the WiFi for services matching `_leafcloud._tcp`.
-    3. Once found, it extracts the IP and port.
-    4. It updates the global `ApiConstants.baseUrl`.
-    5. It stops the scan to save battery and CPU.
+    2. A **15-second timeout timer** starts immediately.
+    3. It scans the WiFi for services matching `_leafcloud._tcp`.
+    4. Once found, it extracts the IP and port, cancels the timer, and stops scanning.
+    5. It updates the global `ApiConstants.baseUrl`.
+
+- **Fallback (timeout)**: If no server is discovered within 15 seconds — typically caused by a router blocking mDNS multicast between WiFi clients — the service automatically falls back to the hardcoded address `http://192.168.1.20:8000`. This ensures the app connects even when mDNS is unavailable, as long as the device can reach the server via IP.
+
+```dart
+static const String _fallbackUrl = 'http://192.168.1.20:8000';
+static const Duration _discoveryTimeout = Duration(seconds: 15);
+```
 
 ### B. Dynamic Constants (`lib/core/constants.dart`)
 The `ApiConstants` class provides a `connectionNotifier` (`ValueNotifier`) that allows the UI to react instantly when a server is discovered.
@@ -53,7 +60,18 @@ zeroconf = Zeroconf()
 zeroconf.register_service(info)
 ```
 
-## 5. Platform-Specific Fixes (macOS)
+## 5. Platform-Specific Configuration
+
+### Android (`android/app/src/main/AndroidManifest.xml`)
+Two permissions are required for mDNS discovery on Android:
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+```
+- **`CHANGE_WIFI_MULTICAST_STATE`**: Required for the `nsd_android` plugin to acquire a `WifiManager.MulticastLock`. Without this, Android silently blocks multicast packets and no `_leafcloud._tcp` services are ever discovered.
+- The `nsd_android` plugin automatically acquires and releases the multicast lock when this permission is present — no additional app-level code is needed.
+
+### macOS
 To allow the app to discover and connect to servers, the following **Entitlements** were added to the macOS sandbox:
 - `com.apple.security.network.client`: Allows outgoing network connections.
 - `com.apple.security.network.server`: Allows listening for mDNS broadcasts.
