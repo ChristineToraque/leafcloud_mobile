@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leaf_cloud/providers/calibration_provider.dart';
 import 'package:leaf_cloud/models/calibration_model.dart';
+import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 
 class CalibrationScreen extends StatefulWidget {
   const CalibrationScreen({super.key});
@@ -69,6 +70,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: const AppFooter(),
       body: Consumer<CalibrationProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.calibrations.isEmpty) {
@@ -120,19 +122,74 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
             );
           }
 
+          final allCalibrating = provider.calibrations.isNotEmpty &&
+              provider.calibrations.every((c) => c.isCalibrating);
+
           return RefreshIndicator(
             onRefresh: () => provider.fetchCalibrations(),
             color: const Color(0xFF4E7A43),
             child: ListView.builder(
               padding: const EdgeInsets.all(16),
-              itemCount: provider.calibrations.length,
+              itemCount: provider.calibrations.length + 1,
               itemBuilder: (context, index) {
-                final calibration = provider.calibrations[index];
-                return _buildCalibrationCard(context, provider, calibration);
+                if (index == 0) return _buildMasterToggle(context, provider, allCalibrating);
+                return _buildCalibrationCard(context, provider, provider.calibrations[index - 1]);
               },
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildMasterToggle(BuildContext context, CalibrationProvider provider, bool allCalibrating) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      decoration: BoxDecoration(
+        color: allCalibrating ? Colors.orange.withValues(alpha: 0.1) : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: allCalibrating ? Colors.orange : Colors.grey.withValues(alpha: 0.3),
+          width: 1.5,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.tune,
+            color: allCalibrating ? Colors.orange : Colors.grey[500],
+            size: 28,
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Calibrating Mode',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                Text(
+                  allCalibrating ? 'All sensors are calibrating' : 'All sensors are idle',
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ],
+            ),
+          ),
+          Switch(
+            value: allCalibrating,
+            activeThumbColor: Colors.orange,
+            activeTrackColor: Colors.orange.withValues(alpha: 0.4),
+            inactiveThumbColor: Colors.grey[400],
+            inactiveTrackColor: Colors.grey[200],
+            onChanged: (value) async {
+              for (final c in provider.calibrations) {
+                await provider.toggleCalibration(c.id, value);
+              }
+            },
+          ),
+        ],
       ),
     );
   }
