@@ -28,6 +28,8 @@ class _ConfigPageState extends State<ConfigPage> {
   final _microKController = TextEditingController();
   final _targetMacroDosageController = TextEditingController();
   final _targetMicroDosageController = TextEditingController();
+  final _macroDensityController = TextEditingController(text: '1.0');
+  final _microDensityController = TextEditingController(text: '1.0');
   bool _isActive = true;
 
   @override
@@ -52,6 +54,8 @@ class _ConfigPageState extends State<ConfigPage> {
     _microKController.text = config.microKPct.toString();
     _targetMacroDosageController.text = config.targetMacroDosageMlL.toString();
     _targetMicroDosageController.text = config.targetMicroDosageMlL.toString();
+    _macroDensityController.text = config.macroDensity.toString();
+    _microDensityController.text = config.microDensity.toString();
     _isActive = config.isActive;
   }
 
@@ -70,6 +74,8 @@ class _ConfigPageState extends State<ConfigPage> {
     _microKController.dispose();
     _targetMacroDosageController.dispose();
     _targetMicroDosageController.dispose();
+    _macroDensityController.dispose();
+    _microDensityController.dispose();
     super.dispose();
   }
 
@@ -90,6 +96,8 @@ class _ConfigPageState extends State<ConfigPage> {
       microKPct: double.parse(_microKController.text),
       targetMacroDosageMlL: double.parse(_targetMacroDosageController.text),
       targetMicroDosageMlL: double.parse(_targetMicroDosageController.text),
+      macroDensity: double.parse(_macroDensityController.text),
+      microDensity: double.parse(_microDensityController.text),
       isActive: _isActive,
       uploadIntervalSeconds: int.parse(_uploadIntervalController.text),
     );
@@ -180,6 +188,19 @@ class _ConfigPageState extends State<ConfigPage> {
                 placeholder: 'e.g., "MasterBlend"',
               ),
               _buildNPKRow(_macroNController, _macroPController, _macroKController),
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'Density (g/mL)',
+                controller: _macroDensityController,
+                placeholder: 'e.g., 1.0',
+                isNumeric: true,
+                validator: (v) {
+                  final val = double.tryParse(v ?? '');
+                  if (val == null) return 'Required';
+                  if (val <= 0) return 'Must be > 0';
+                  return null;
+                },
+              ),
               
               const SizedBox(height: 16),
               _buildSubSectionTitle('B. Micro Fertilizer Profile'),
@@ -189,6 +210,19 @@ class _ConfigPageState extends State<ConfigPage> {
                 placeholder: 'e.g., "NutriHydro"',
               ),
               _buildNPKRow(_microNController, _microPController, _microKController),
+              const SizedBox(height: 12),
+              _buildTextField(
+                label: 'Density (g/mL)',
+                controller: _microDensityController,
+                placeholder: 'e.g., 1.0',
+                isNumeric: true,
+                validator: (v) {
+                  final val = double.tryParse(v ?? '');
+                  if (val == null) return 'Required';
+                  if (val <= 0) return 'Must be > 0';
+                  return null;
+                },
+              ),
               
               const Divider(height: 32),
               

@@ -43,4 +43,5 @@ The configuration fields map directly to the backend database schema:
 | Is Active | `is_active` | Boolean |
 | Macro Brand | `macro_brand_name` | String |
 | N-P-K % | `macro_n_pct`, etc. | Float |
-| Target Dosage | `target_macro_dosage_mll` | Float |
+| Density | `macro_density` (and `micro_density`) | Float |
+| Target Dosage | `target_macro_dosage_mll`, etc. | Float |
