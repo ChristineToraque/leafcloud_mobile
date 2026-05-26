@@ -12,8 +12,7 @@ The Dashboard is the main screen shown to farmers after login. It integrates raw
     - **`isAnomaly`**: Boolean flag indicating a discrepancy between sensor data and AI visual analysis.
 - **`TelemetryData`**: Raw readings for pH, EC, and Water Temperature.
 - **`NutrientEstimation`**: AI calculations for:
-    - **Macro Nutrients**: Nitrogen (N), Phosphorus (P), and Potassium (K) in grams.
-    - **Micro Nutrients**: Trace elements (`microGrams`) in grams.
+    - **Macro Nutrients**: Nitrogen (N), Phosphorus (P), and Potassium (K) in Parts Per Million (PPM).
 - **`AdvisoryInsight`**: AI-generated summary, explanation, and recommended farmer action. Includes specialized logic for "AI Sensor Anomaly Detected".
 - **`ActionableAlert`**: Triggered when nutrient levels drop below 70%; includes top-up amounts in mL.
 
@@ -26,14 +25,14 @@ The Dashboard is the main screen shown to farmers after login. It integrates raw
 - **Image Feed**: Displays the latest plant photo captured by the Raspberry Pi.
 - **Telemetry Grid**: Quick-glance cards for pH, EC, and Temperature.
 - **Advisory Card**: AI-generated recommendation shown below the image.
-- **Nutrient Breakdown**: Detailed row-based breakdown for Macro (NPK), Micro (Trace), and Total mass.
+- **Nutrient Breakdown**: Detailed row-based breakdown for Macro (NPK) and Total Concentration (PPM).
 
 ## 3. Multi-Task AI Integration
 The mobile app leverages the backend's dual-head AI model (Classification + Regression):
 
 1.  **Confidence via Classification**: The `profile_detected` field (Classification head) is displayed in the top banner to confirm that the AI recognizes the current nutrient mix.
 2.  **Accuracy via Sanity Checks**: If the AI's classification (e.g., "Water") conflicts with the sensor's regression (e.g., "High EC"), the backend sets `is_anomaly: true`. The mobile app responds by visually flagging the sensor cards.
-3.  **Detailed Breakdown**: The regression head now provides specific `micro_grams`, allowing the app to show a separate line item for trace elements instead of just a single "Total Nutrients" value.
+3.  **Detailed Breakdown**: The regression head now provides specific nutrient concentrations in PPM (`n_ppm`, `p_ppm`, `k_ppm`), showing a breakdown for each element alongside the total estimated PPM.
 
 ## 4. API Contract
 The dashboard is driven by a single endpoint:
@@ -46,9 +45,10 @@ Key response fields:
 | `image_url` | Full `http://` URL to the latest plant image |
 | `health_status` | `HEALTHY` or `NUTRIENT DEFICIENT` |
 | `profile_detected` | `Balanced`, `Macro-Leaning Blend`, `Micro-Leaning Blend`, or `Water` |
+| `predicted_class` | Raw AI prediction class (e.g. `Mix`, `NPK`, `Water`, etc.) |
 | `is_anomaly` | `true` if AI and sensors disagree |
 | `telemetry` | `{ ph, ec, water_temp, status }` |
-| `estimated_nutrients` | `{ n_grams, p_grams, k_grams, micro_grams, total_estimated_grams }` |
+| `estimated_nutrients` | `{ n_ppm, p_ppm, k_ppm, total_estimated_ppm, unit }` |
 | `advisory` | `{ summary, explanation, farmer_action }` |
 | `alert` | `null` or `{ level, message, topup_macro_ml, topup_micro_ml }` |
 

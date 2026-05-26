@@ -24,30 +24,27 @@ class TelemetryData {
 }
 
 class NutrientEstimation {
-  final double nGrams;
-  final double pGrams;
-  final double kGrams;
-  final double microGrams;
-  final double totalEstimatedGrams;
+  final double nPpm;
+  final double pPpm;
+  final double kPpm;
+  final double totalEstimatedPpm;
   final String unit;
 
   NutrientEstimation({
-    required this.nGrams,
-    required this.pGrams,
-    required this.kGrams,
-    required this.microGrams,
-    required this.totalEstimatedGrams,
-    this.unit = 'grams',
+    required this.nPpm,
+    required this.pPpm,
+    required this.kPpm,
+    required this.totalEstimatedPpm,
+    this.unit = 'ppm',
   });
 
   factory NutrientEstimation.fromJson(Map<String, dynamic> json) {
     return NutrientEstimation(
-      nGrams: (json['n_grams'] as num).toDouble(),
-      pGrams: (json['p_grams'] as num).toDouble(),
-      kGrams: (json['k_grams'] as num).toDouble(),
-      microGrams: (json['micro_grams'] as num?)?.toDouble() ?? 0.0,
-      totalEstimatedGrams: (json['total_estimated_grams'] as num).toDouble(),
-      unit: json['unit'] ?? 'grams',
+      nPpm: (json['n_ppm'] as num?)?.toDouble() ?? 0.0,
+      pPpm: (json['p_ppm'] as num?)?.toDouble() ?? 0.0,
+      kPpm: (json['k_ppm'] as num?)?.toDouble() ?? 0.0,
+      totalEstimatedPpm: (json['total_estimated_ppm'] as num?)?.toDouble() ?? 0.0,
+      unit: json['unit'] ?? 'ppm',
     );
   }
 }
@@ -105,6 +102,7 @@ class DashboardData {
   final String imageUrl;
   final String healthStatus;
   final String profileDetected;
+  final String predictedClass;
   final bool isAnomaly;
   final TelemetryData telemetry;
   final NutrientEstimation estimatedNutrients;
@@ -118,6 +116,7 @@ class DashboardData {
     required this.imageUrl,
     required this.healthStatus,
     required this.profileDetected,
+    required this.predictedClass,
     required this.isAnomaly,
     required this.telemetry,
     required this.estimatedNutrients,
@@ -134,7 +133,8 @@ class DashboardData {
       lastUpdated: DateTime.parse(json['last_updated']),
       imageUrl: imageUrl,
       healthStatus: json['health_status'],
-      profileDetected: json['profile_detected'],
+      profileDetected: json['profile_detected'] ?? '',
+      predictedClass: json['predicted_class'] ?? '',
       isAnomaly: json['is_anomaly'] ?? false,
       telemetry: TelemetryData.fromJson(json['telemetry']),
       estimatedNutrients: NutrientEstimation.fromJson(json['estimated_nutrients']),

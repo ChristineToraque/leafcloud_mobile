@@ -193,14 +193,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     child: Column(
                       children: [
-                        _buildNutrientRow('Total Estimated Mass', data.estimatedNutrients.totalEstimatedGrams, isTotal: true),
+                        _buildNutrientRow('Total Estimated Concentration', data.estimatedNutrients.totalEstimatedPpm, data.estimatedNutrients.unit, isTotal: true),
                         const Divider(height: 24),
-                        _buildNutrientRow('Nitrogen (N)', data.estimatedNutrients.nGrams),
-                        _buildNutrientRow('Phosphorus (P)', data.estimatedNutrients.pGrams),
-                        _buildNutrientRow('Potassium (K)', data.estimatedNutrients.kGrams),
+                        _buildNutrientRow('Nitrogen (N)', data.estimatedNutrients.nPpm, data.estimatedNutrients.unit),
+                        _buildNutrientRow('Phosphorus (P)', data.estimatedNutrients.pPpm, data.estimatedNutrients.unit),
+                        _buildNutrientRow('Potassium (K)', data.estimatedNutrients.kPpm, data.estimatedNutrients.unit),
                         const SizedBox(height: 12),
                         Text(
-                          'Profile: ${data.profileDetected}',
+                          'Profile: ${data.profileDetected} (AI Class: ${data.predictedClass})',
                           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green[800], fontSize: 12),
                         ),
                       ],
@@ -387,21 +387,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildNutrientRow(String label, double grams, {bool isTotal = false}) {
+  Widget _buildNutrientRow(String label, double value, String unit, {bool isTotal = false}) {
+    final formattedValue = value.toStringAsFixed(unit.toLowerCase().startsWith('g') ? 2 : 1);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 16 : 14,
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+                fontSize: isTotal ? 16 : 14,
+              ),
             ),
           ),
+          const SizedBox(width: 8),
           Text(
-            '${grams.toStringAsFixed(2)} g',
+            '$formattedValue $unit',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: isTotal ? 16 : 14,
