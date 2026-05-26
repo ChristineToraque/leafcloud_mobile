@@ -51,4 +51,47 @@ class AuthRepository implements IAuthRepository {
       throw Exception('An unexpected error occurred: $e');
     }
   }
+
+  @override
+  Future<User> register(String name, String email, String password) async {
+    try {
+      final response = await _client.post(
+        Uri.parse(ApiConstants.registerEndpoint),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'name': name,
+          'email': email,
+          'password': password,
+        }),
+      );
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server returned a non-JSON response (Status: ${response.statusCode})');
+      }
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        return User.fromJson(data);
+      } else {
+        String errorMessage = 'Registration failed (${response.statusCode})';
+        if (data is Map && data.containsKey('detail')) {
+          if (data['detail'] is List) {
+            errorMessage = data['detail'][0]['msg'] ?? errorMessage;
+          } else {
+            errorMessage = data['detail'].toString();
+          }
+        } else if (data is Map && data.containsKey('message')) {
+          errorMessage = data['message'];
+        }
+        throw Exception(errorMessage);
+      }
+    } on FormatException {
+      throw Exception('Server error: Invalid data format received.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
 }

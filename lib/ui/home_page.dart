@@ -7,6 +7,7 @@ import 'package:leaf_cloud/ui/dashboard_screen.dart';
 import 'package:leaf_cloud/ui/history_screen.dart';
 import 'package:leaf_cloud/ui/alerts_screen.dart';
 import 'package:leaf_cloud/ui/calibration_screen.dart';
+import 'package:leaf_cloud/ui/register_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -104,6 +105,18 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const CalibrationScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.person_add, color: Color(0xFF4E7A43)),
+              title: const Text('Add New User'),
+              subtitle: const Text('Register a new user account'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const RegisterPage()),
                 );
               },
             ),
