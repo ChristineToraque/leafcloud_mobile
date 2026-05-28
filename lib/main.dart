@@ -92,10 +92,10 @@ class LoginApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: const Color(0xFF4E7A43),
-          surface: const Color(0xFFD9E3D9),
+          surface: const Color(0xFFF4F7F4),
         ),
         useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFFD9E3D9),
+        scaffoldBackgroundColor: const Color(0xFFEDF2ED),
       ),
       home: const LoginPage(),
     );

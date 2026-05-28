@@ -127,17 +127,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 24),
 
                   // Lettuce Image
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Container(
-                      height: 200,
-                      width: double.infinity,
-                      color: Colors.grey[300],
+                  Container(
+                    height: 200,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
                       child: Image.network(
                         data.imageUrl,
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => const Center(
-                          child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                        errorBuilder: (context, error, stackTrace) => Container(
+                          color: Colors.grey[300],
+                          child: const Center(
+                            child: Icon(Icons.broken_image, size: 50, color: Colors.grey),
+                          ),
                         ),
                       ),
                     ),
@@ -166,16 +178,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ],
                       ),
                     ),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
+                  Row(
                     children: [
-                      _buildTelemetryCard('pH', data.telemetry.ph.toStringAsFixed(1), Icons.water_drop, Colors.blue, hasAnomaly),
-                      _buildTelemetryCard('EC', data.telemetry.ec.toStringAsFixed(2), Icons.bolt, Colors.orange, hasAnomaly),
-                      _buildTelemetryCard('Temp', '${data.telemetry.waterTemp}°C', Icons.thermostat, Colors.red, false),
+                      Expanded(
+                        child: _buildTelemetryCard('pH', data.telemetry.ph.toStringAsFixed(1), Icons.water_drop, Colors.blue, hasAnomaly),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildTelemetryCard('EC', data.telemetry.ec.toStringAsFixed(2), Icons.bolt, Colors.orange, hasAnomaly),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildTelemetryCard('Temp', '${data.telemetry.waterTemp}°C', Icons.thermostat, Colors.red, false),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -220,14 +235,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildProfileBanner(String profile, bool isHealthy) {
-    final baseColor = isHealthy ? const Color(0xFF4E7A43) : Colors.orange[800]!;
+    final baseColor = isHealthy ? const Color(0xFF4E7A43) : Colors.orange[700]!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: baseColor.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: baseColor.withValues(alpha: 0.3)),
+        color: baseColor.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: baseColor.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -255,41 +270,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildAdvisoryCard(AdvisoryInsight advisory) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFF4E7A43),
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
+        gradient: const LinearGradient(
+          colors: [Color(0xFF4E7A43), Color(0xFF385C2E)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF4E7A43).withValues(alpha: 0.15),
+            blurRadius: 15,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.psychology, color: Colors.white),
-              const SizedBox(width: 8),
+              const Icon(Icons.psychology, color: Colors.white, size: 24),
+              const SizedBox(width: 10),
               Text(
                 advisory.summary,
                 style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           Text(
             advisory.explanation,
-            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14),
+            style: TextStyle(color: Colors.white.withValues(alpha: 0.9), fontSize: 14, height: 1.4),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(8),
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
             ),
             child: Row(
               children: [
-                const Icon(Icons.touch_app, color: Colors.white, size: 16),
-                const SizedBox(width: 8),
+                const Icon(Icons.touch_app, color: Colors.white, size: 18),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     advisory.farmerAction,
@@ -306,35 +331,44 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildStatusBadge(String status) {
     final isHealthy = status.toLowerCase() == 'healthy';
-    final color = isHealthy ? Colors.green : Colors.orange;
+    final color = isHealthy ? const Color(0xFF4E7A43) : Colors.orange[700]!;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color),
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(30),
       ),
       child: Text(
         status.toUpperCase(),
-        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 12),
+        style: TextStyle(color: color, fontWeight: FontWeight.bold, fontSize: 11, letterSpacing: 0.5),
       ),
     );
   }
 
   Widget _buildTelemetryCard(String label, String value, IconData icon, Color color, bool showWarning) {
     return Container(
+      height: 95,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 5)],
-        border: showWarning ? Border.all(color: Colors.red.withValues(alpha: 0.5), width: 1.5) : null,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          )
+        ],
+        border: Border.all(
+          color: showWarning ? Colors.red.withValues(alpha: 0.4) : Colors.grey.withValues(alpha: 0.15),
+          width: showWarning ? 1.5 : 1.0,
+        ),
       ),
       child: Stack(
         children: [
           if (showWarning)
             const Positioned(
-              top: 4,
-              right: 4,
+              top: 6,
+              right: 6,
               child: Icon(Icons.warning, color: Colors.red, size: 14),
             ),
           Center(
@@ -343,8 +377,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 Icon(icon, color: color, size: 24),
                 const SizedBox(height: 4),
-                Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                Text(
+                  value,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.black87),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  label,
+                  style: TextStyle(fontSize: 11, color: Colors.grey[500], fontWeight: FontWeight.w500),
+                ),
               ],
             ),
           ),
@@ -355,16 +396,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   Widget _buildAlertCard(ActionableAlert alert) {
     final isWarning = alert.level.toLowerCase() == 'warning';
+    final color = isWarning ? Colors.orange : Colors.blue;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isWarning ? Colors.amber[50] : Colors.blue[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: isWarning ? Colors.amber : Colors.blue),
+        color: isWarning ? Colors.orange[50] : Colors.blue[50],
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
-          Icon(isWarning ? Icons.warning_amber_rounded : Icons.info_outline, color: isWarning ? Colors.amber[900] : Colors.blue[900]),
+          Icon(isWarning ? Icons.warning_amber_rounded : Icons.info_outline, color: isWarning ? Colors.orange[900] : Colors.blue[900]),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -372,9 +414,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               children: [
                 const Text(
                   'Top-up Required',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                 ),
-                Text(alert.message),
+                const SizedBox(height: 2),
+                Text(alert.message, style: TextStyle(color: Colors.grey[800], fontSize: 13)),
               ],
             ),
           ),
