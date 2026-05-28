@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
+import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -61,6 +62,7 @@ class _RegisterPageState extends State<RegisterPage> {
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
       ),
+      bottomNavigationBar: const AppFooter(),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Form(
