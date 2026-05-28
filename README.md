@@ -28,6 +28,7 @@ Comprehensive guides for each feature:
 10. [User Registration](docs/page-10-user-registration.md)
 11. [JWT Authentication](docs/page-11-jwt-authentication.md)
 12. [Role-Based Access Control](docs/page-12-role-based-access-control.md)
+13. [Token Lifecycle Management](docs/page-13-token-lifecycle-client.md)
 
 ## Development
 
