@@ -22,12 +22,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _refreshData() async {
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
+
     final configProvider = context.read<ConfigProvider>();
     await configProvider.fetchConfigs();
     
     final activeConfig = configProvider.activeConfig;
     if (activeConfig != null && mounted) {
-      context.read<IotProvider>().fetchDashboard(activeConfig.id!);
+      await context.read<IotProvider>().fetchDashboard(activeConfig.id!);
     }
   }
 

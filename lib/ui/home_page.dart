@@ -8,6 +8,7 @@ import 'package:leaf_cloud/ui/history_screen.dart';
 import 'package:leaf_cloud/ui/alerts_screen.dart';
 import 'package:leaf_cloud/ui/calibration_screen.dart';
 import 'package:leaf_cloud/ui/register_page.dart';
+import 'package:leaf_cloud/providers/auth_provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -25,6 +26,9 @@ class HomePage extends StatelessWidget {
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh Dashboard',
             onPressed: () async {
+              PaintingBinding.instance.imageCache.clear();
+              PaintingBinding.instance.imageCache.clearLiveImages();
+              
               final configProvider = context.read<ConfigProvider>();
               await configProvider.fetchConfigs();
               final activeConfig = configProvider.activeConfig;
@@ -125,6 +129,7 @@ class HomePage extends StatelessWidget {
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Logout'),
               onTap: () {
+                Provider.of<AuthProvider>(context, listen: false).logout();
                 Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
               },
             ),
