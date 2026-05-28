@@ -3,13 +3,30 @@ class User {
   final String name;
   final String email;
   final bool isAdmin;
+  final bool isVerified;
 
   User({
     required this.id,
     required this.name,
     required this.email,
     this.isAdmin = false,
+    this.isVerified = false,
   });
+
+  User copyWith({
+    String? name,
+    String? email,
+    bool? isAdmin,
+    bool? isVerified,
+  }) {
+    return User(
+      id: id,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      isAdmin: isAdmin ?? this.isAdmin,
+      isVerified: isVerified ?? this.isVerified,
+    );
+  }
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
@@ -17,6 +34,7 @@ class User {
       name: json['name'],
       email: json['email'],
       isAdmin: json['is_admin'] ?? false,
+      isVerified: json['is_verified'] ?? false,
     );
   }
 }

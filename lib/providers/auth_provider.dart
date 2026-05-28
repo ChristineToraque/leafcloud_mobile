@@ -77,8 +77,97 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> forgotPassword(String email) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authRepository.forgotPassword(email);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> resetPassword(String token, String newPassword) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      await _authRepository.resetPassword(token, newPassword);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateProfile({
+    String? name,
+    String? email,
+    String? currentPassword,
+    String? newPassword,
+  }) async {
+    final accessToken = ApiConstants.token;
+    if (accessToken == null) {
+      _errorMessage = 'User is not logged in';
+      return false;
+    }
+
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedUser = await _authRepository.updateProfile(
+        accessToken,
+        name: name,
+        email: email,
+        currentPassword: currentPassword,
+        newPassword: newPassword,
+      );
+
+      final shouldLogout = (email != null && email.trim() != _loginResponse?.user?.email) ||
+                           (newPassword != null && newPassword.isNotEmpty);
+
+      if (shouldLogout) {
+        await logout();
+      } else {
+        if (_loginResponse != null) {
+          _loginResponse = LoginResponse(
+            status: _loginResponse!.status,
+            token: _loginResponse!.token,
+            refreshToken: _loginResponse!.refreshToken,
+            message: _loginResponse!.message,
+            user: updatedUser,
+          );
+        }
+      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   void clearError() {
     _errorMessage = null;
     notifyListeners();
   }
 }
+

@@ -36,7 +36,7 @@ Future<void> main() async {
       providers: [
         // Repositories
         Provider<IAuthRepository>(
-          create: (_) => AuthRepository(),
+          create: (_) => AuthRepository(client: AuthClient()),
         ),
         Provider<IConfigRepository>(
           create: (_) => ConfigRepository(client: AuthClient()),
