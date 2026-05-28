@@ -9,12 +9,20 @@ class ConfigRepository implements IConfigRepository {
 
   ConfigRepository({http.Client? client}) : _client = client ?? http.Client();
 
+  Map<String, String> _getHeaders() {
+    final headers = {'Content-Type': 'application/json'};
+    if (ApiConstants.token != null) {
+      headers['Authorization'] = 'Bearer ${ApiConstants.token}';
+    }
+    return headers;
+  }
+
   @override
   Future<List<SystemConfig>> listConfigs() async {
     try {
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
       );
 
       final contentType = response.headers['content-type'];
@@ -41,7 +49,7 @@ class ConfigRepository implements IConfigRepository {
     try {
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
       );
 
       final contentType = response.headers['content-type'];
@@ -67,7 +75,7 @@ class ConfigRepository implements IConfigRepository {
     try {
       final response = await _client.post(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
         body: jsonEncode(config.toJson()),
       );
 
@@ -95,7 +103,7 @@ class ConfigRepository implements IConfigRepository {
     try {
       final response = await _client.patch(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
         body: jsonEncode(config.toJson()),
       );
 
@@ -122,7 +130,7 @@ class ConfigRepository implements IConfigRepository {
   Future<void> deleteConfig(int id) async {
     final response = await _client.delete(
       Uri.parse('${ApiConstants.baseUrl}/api/v1/tank-configs/$id'),
-      headers: {'Content-Type': 'application/json'},
+      headers: _getHeaders(),
     );
 
     if (response.statusCode != 204 && response.statusCode != 200) {

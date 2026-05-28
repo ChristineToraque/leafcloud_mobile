@@ -11,12 +11,20 @@ class IotRepository implements IIotRepository {
 
   IotRepository({http.Client? client}) : _client = client ?? http.Client();
 
+  Map<String, String> _getHeaders() {
+    final headers = {'Content-Type': 'application/json'};
+    if (ApiConstants.token != null) {
+      headers['Authorization'] = 'Bearer ${ApiConstants.token}';
+    }
+    return headers;
+  }
+
   @override
   Future<DashboardData> getDashboard(int tankId) async {
     try {
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/iot/dashboard/$tankId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
       );
 
       final contentType = response.headers['content-type'];
@@ -44,7 +52,7 @@ class IotRepository implements IIotRepository {
     try {
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/iot/alert/$tankId'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
       );
 
       final contentType = response.headers['content-type'];
@@ -73,7 +81,7 @@ class IotRepository implements IIotRepository {
       final uri = Uri.parse('${ApiConstants.baseUrl}/api/v1/iot/history/$tankId')
           .replace(queryParameters: {'days': '$days', 'limit': '$limit'});
 
-      final response = await _client.get(uri, headers: {'Content-Type': 'application/json'});
+      final response = await _client.get(uri, headers: _getHeaders());
 
       final contentType = response.headers['content-type'];
       if (contentType == null || !contentType.contains('application/json')) {

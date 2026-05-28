@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:leaf_cloud/core/constants.dart';
 import 'package:leaf_cloud/models/user_model.dart';
 import 'package:leaf_cloud/repositories/auth_repository_interface.dart';
 
@@ -23,6 +24,7 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       _loginResponse = await _authRepository.login(email, password);
+      ApiConstants.token = _loginResponse?.token;
       _isLoading = false;
       notifyListeners();
       return true;
@@ -32,6 +34,12 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  void logout() {
+    _loginResponse = null;
+    ApiConstants.token = null;
+    notifyListeners();
   }
 
   Future<bool> register(String name, String email, String password) async {

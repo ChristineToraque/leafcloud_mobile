@@ -9,12 +9,20 @@ class CalibrationRepository implements ICalibrationRepository {
 
   CalibrationRepository({http.Client? client}) : _client = client ?? http.Client();
 
+  Map<String, String> _getHeaders() {
+    final headers = {'Content-Type': 'application/json'};
+    if (ApiConstants.token != null) {
+      headers['Authorization'] = 'Bearer ${ApiConstants.token}';
+    }
+    return headers;
+  }
+
   @override
   Future<List<SensorCalibration>> getCalibrations() async {
     try {
       final response = await _client.get(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/calibration/'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
       );
 
       final contentType = response.headers['content-type'];
@@ -41,7 +49,7 @@ class CalibrationRepository implements ICalibrationRepository {
     try {
       final response = await _client.patch(
         Uri.parse('${ApiConstants.baseUrl}/api/v1/calibration/$id'),
-        headers: {'Content-Type': 'application/json'},
+        headers: _getHeaders(),
         body: jsonEncode({'is_calibrating': isCalibrating}),
       );
 

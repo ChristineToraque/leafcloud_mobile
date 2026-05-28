@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class ApiConstants {
   static String? _discoveredBaseUrl;
+  static String? token;
   
   /// ValueNotifier to track the connection status and discovered URL globally.
   static final ValueNotifier<String?> connectionNotifier = ValueNotifier<String?>(null);
