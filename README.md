@@ -27,6 +27,7 @@ Comprehensive guides for each feature:
 9. [Shared UI Components](docs/page-9-shared-components.md)
 10. [User Registration](docs/page-10-user-registration.md)
 11. [JWT Authentication](docs/page-11-jwt-authentication.md)
+12. [Role-Based Access Control](docs/page-12-role-based-access-control.md)
 
 ## Development
 
