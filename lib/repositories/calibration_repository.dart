@@ -33,6 +33,8 @@ class CalibrationRepository implements ICalibrationRepository {
       if (response.statusCode == 200) {
         final List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => SensorCalibration.fromJson(json)).toList();
+      } else if (response.statusCode == 403) {
+        throw Exception("Access Denied: You do not have permission to perform this action. Please contact your administrator.");
       } else {
         throw Exception('Failed to load calibrations (${response.statusCode})');
       }
@@ -60,6 +62,8 @@ class CalibrationRepository implements ICalibrationRepository {
 
       if (response.statusCode == 200) {
         return SensorCalibration.fromJson(jsonDecode(response.body));
+      } else if (response.statusCode == 403) {
+        throw Exception("Access Denied: You do not have permission to perform this action. Please contact your administrator.");
       } else {
         final data = jsonDecode(response.body);
         throw Exception(data['detail'] ?? 'Failed to update calibration (${response.statusCode})');

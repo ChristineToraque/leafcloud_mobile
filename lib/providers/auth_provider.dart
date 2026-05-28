@@ -17,6 +17,8 @@ class AuthProvider extends ChangeNotifier {
   LoginResponse? _loginResponse;
   LoginResponse? get loginResponse => _loginResponse;
 
+  bool get isAdmin => _loginResponse?.user?.isAdmin ?? false;
+
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;

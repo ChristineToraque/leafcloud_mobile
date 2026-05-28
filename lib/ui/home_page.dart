@@ -15,6 +15,7 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
     return Scaffold(
       appBar: AppBar(
         title: const Text('LeafCloud'),
@@ -100,30 +101,32 @@ class HomePage extends StatelessWidget {
                 );
               },
             ),
-            ListTile(
-              leading: const Icon(Icons.compass_calibration, color: Color(0xFF4E7A43)),
-              title: const Text('Sensor Calibration'),
-              subtitle: const Text('Calibrate pH and EC sensors'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const CalibrationScreen()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.person_add, color: Color(0xFF4E7A43)),
-              title: const Text('Add New User'),
-              subtitle: const Text('Register a new user account'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const RegisterPage()),
-                );
-              },
-            ),
+            if (isAdmin) ...[
+              ListTile(
+                leading: const Icon(Icons.compass_calibration, color: Color(0xFF4E7A43)),
+                title: const Text('Sensor Calibration'),
+                subtitle: const Text('Calibrate pH and EC sensors'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const CalibrationScreen()),
+                  );
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.person_add, color: Color(0xFF4E7A43)),
+                title: const Text('Add New User'),
+                subtitle: const Text('Register a new user account'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const RegisterPage()),
+                  );
+                },
+              ),
+            ],
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),

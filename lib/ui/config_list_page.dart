@@ -3,6 +3,7 @@ import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:leaf_cloud/ui/config_page.dart';
 import 'package:leaf_cloud/ui/widgets/app_footer.dart';
 import 'package:provider/provider.dart';
+import 'package:leaf_cloud/providers/auth_provider.dart';
 
 class ConfigListPage extends StatefulWidget {
   const ConfigListPage({super.key});
@@ -22,6 +23,7 @@ class _ConfigListPageState extends State<ConfigListPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Reservoir Configurations'),
@@ -120,16 +122,18 @@ class _ConfigListPageState extends State<ConfigListPage> {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const ConfigPage()),
-          );
-        },
-        backgroundColor: const Color(0xFF4E7A43),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+      floatingActionButton: isAdmin
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ConfigPage()),
+                );
+              },
+              backgroundColor: const Color(0xFF4E7A43),
+              child: const Icon(Icons.add, color: Colors.white),
+            )
+          : null,
     );
   }
 }

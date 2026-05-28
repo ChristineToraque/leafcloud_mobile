@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:leaf_cloud/providers/calibration_provider.dart';
 import 'package:leaf_cloud/models/calibration_model.dart';
 import 'package:leaf_cloud/ui/widgets/app_footer.dart';
+import 'package:leaf_cloud/providers/auth_provider.dart';
 
 class CalibrationScreen extends StatefulWidget {
   const CalibrationScreen({super.key});
@@ -46,6 +47,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sensor Calibration'),
@@ -132,8 +134,8 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
               padding: const EdgeInsets.all(16),
               itemCount: provider.calibrations.length + 1,
               itemBuilder: (context, index) {
-                if (index == 0) return _buildMasterToggle(context, provider, allCalibrating);
-                return _buildCalibrationCard(context, provider, provider.calibrations[index - 1]);
+                if (index == 0) return _buildMasterToggle(context, provider, allCalibrating, isAdmin);
+                return _buildCalibrationCard(context, provider, provider.calibrations[index - 1], isAdmin);
               },
             ),
           );
@@ -142,7 +144,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     );
   }
 
-  Widget _buildMasterToggle(BuildContext context, CalibrationProvider provider, bool allCalibrating) {
+  Widget _buildMasterToggle(BuildContext context, CalibrationProvider provider, bool allCalibrating, bool isAdmin) {
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
@@ -183,11 +185,11 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
             activeTrackColor: Colors.orange.withValues(alpha: 0.4),
             inactiveThumbColor: Colors.grey[400],
             inactiveTrackColor: Colors.grey[200],
-            onChanged: (value) async {
+            onChanged: isAdmin ? (value) async {
               for (final c in provider.calibrations) {
                 await provider.toggleCalibration(c.id, value);
               }
-            },
+            } : null,
           ),
         ],
       ),
@@ -198,6 +200,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
     BuildContext context,
     CalibrationProvider provider,
     SensorCalibration calibration,
+    bool isAdmin,
   ) {
     final isCalibrating = calibration.isCalibrating;
     final isPh = calibration.sensorName.toLowerCase().contains('ph');
@@ -278,7 +281,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
               activeTrackColor: Colors.orange.withValues(alpha: 0.4),
               inactiveThumbColor: Colors.grey[400],
               inactiveTrackColor: Colors.grey[200],
-              onChanged: (value) async {
+              onChanged: isAdmin ? (value) async {
                 final success = await provider.toggleCalibration(calibration.id, value);
                 if (!success && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -288,7 +291,7 @@ class _CalibrationScreenState extends State<CalibrationScreen> {
                     ),
                   );
                 }
-              },
+              } : null,
             ),
           ],
         ),

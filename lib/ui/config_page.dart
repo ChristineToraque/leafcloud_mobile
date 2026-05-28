@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:leaf_cloud/models/system_config_model.dart';
 import 'package:leaf_cloud/providers/config_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:leaf_cloud/providers/auth_provider.dart';
 
 class ConfigPage extends StatefulWidget {
   final SystemConfig? configToEdit;
@@ -127,9 +128,13 @@ class _ConfigPageState extends State<ConfigPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isAdmin = Provider.of<AuthProvider>(context).isAdmin;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.configToEdit != null ? 'Edit Configuration' : 'New Configuration'),
+        title: Text(widget.configToEdit != null
+            ? (isAdmin ? 'Edit Configuration' : 'View Configuration')
+            : 'New Configuration'),
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
       ),
@@ -145,6 +150,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 label: 'Reservoir Name',
                 controller: _tankNameController,
                 placeholder: 'e.g., "Lettuce Bed A"',
+                readOnly: !isAdmin,
                 validator: (v) => (v == null || v.isEmpty) ? 'Required' : (v.length > 50 ? 'Max 50 chars' : null),
               ),
               _buildTextField(
@@ -152,6 +158,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 controller: _waterVolumeController,
                 placeholder: 'e.g., 50.0',
                 isNumeric: true,
+                readOnly: !isAdmin,
                 validator: (v) {
                   final val = double.tryParse(v ?? '');
                   if (val == null) return 'Required';
@@ -164,6 +171,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 controller: _uploadIntervalController,
                 placeholder: 'e.g., 60',
                 isNumeric: true,
+                readOnly: !isAdmin,
                 validator: (v) {
                   final val = int.tryParse(v ?? '');
                   if (val == null) return 'Required';
@@ -176,7 +184,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 subtitle: const Text('Only active configurations are used for calculations.'),
                 value: _isActive,
                 activeThumbColor: const Color(0xFF4E7A43),
-                onChanged: (val) => setState(() => _isActive = val),
+                onChanged: isAdmin ? (val) => setState(() => _isActive = val) : null,
               ),
               const Divider(height: 32),
               
@@ -186,14 +194,16 @@ class _ConfigPageState extends State<ConfigPage> {
                 label: 'Macro Brand',
                 controller: _macroBrandController,
                 placeholder: 'e.g., "MasterBlend"',
+                readOnly: !isAdmin,
               ),
-              _buildNPKRow(_macroNController, _macroPController, _macroKController),
+              _buildNPKRow(_macroNController, _macroPController, _macroKController, !isAdmin),
               const SizedBox(height: 12),
               _buildTextField(
                 label: 'Density (g/mL)',
                 controller: _macroDensityController,
                 placeholder: 'e.g., 1.0',
                 isNumeric: true,
+                readOnly: !isAdmin,
                 validator: (v) {
                   final val = double.tryParse(v ?? '');
                   if (val == null) return 'Required';
@@ -208,14 +218,16 @@ class _ConfigPageState extends State<ConfigPage> {
                 label: 'Micro Brand',
                 controller: _microBrandController,
                 placeholder: 'e.g., "NutriHydro"',
+                readOnly: !isAdmin,
               ),
-              _buildNPKRow(_microNController, _microPController, _microKController),
+              _buildNPKRow(_microNController, _microPController, _microKController, !isAdmin),
               const SizedBox(height: 12),
               _buildTextField(
                 label: 'Density (g/mL)',
                 controller: _microDensityController,
                 placeholder: 'e.g., 1.0',
                 isNumeric: true,
+                readOnly: !isAdmin,
                 validator: (v) {
                   final val = double.tryParse(v ?? '');
                   if (val == null) return 'Required';
@@ -232,6 +244,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 controller: _targetMacroDosageController,
                 placeholder: '2.0',
                 isNumeric: true,
+                readOnly: !isAdmin,
                 validator: (v) {
                   final val = double.tryParse(v ?? '');
                   if (val == null) return 'Required';
@@ -244,6 +257,7 @@ class _ConfigPageState extends State<ConfigPage> {
                 controller: _targetMicroDosageController,
                 placeholder: '2.0',
                 isNumeric: true,
+                readOnly: !isAdmin,
                 validator: (v) {
                   final val = double.tryParse(v ?? '');
                   if (val == null) return 'Required';
@@ -253,26 +267,48 @@ class _ConfigPageState extends State<ConfigPage> {
               ),
               
               const SizedBox(height: 32),
-              Consumer<ConfigProvider>(
-                builder: (context, provider, child) {
-                  return SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: provider.isLoading ? null : _saveConfig,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4E7A43),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              if (isAdmin)
+                Consumer<ConfigProvider>(
+                  builder: (context, provider, child) {
+                    return SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: provider.isLoading ? null : _saveConfig,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF4E7A43),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: provider.isLoading
+                            ? const CircularProgressIndicator(color: Colors.white)
+                            : Text(widget.configToEdit != null ? 'Update Settings' : 'Create Configuration', 
+                                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                       ),
-                      child: provider.isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : Text(widget.configToEdit != null ? 'Update Settings' : 'Create Configuration', 
-                                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                )
+              else
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[350]!),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.grey),
+                      SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Read-Only Mode: You do not have permission to make changes. Please contact your administrator.',
+                          style: TextStyle(color: Colors.grey, fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(height: 32),
             ],
           ),
@@ -301,11 +337,13 @@ class _ConfigPageState extends State<ConfigPage> {
     String? placeholder,
     bool isNumeric = false,
     String? Function(String?)? validator,
+    bool readOnly = false,
   }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: TextFormField(
         controller: controller,
+        readOnly: readOnly,
         keyboardType: isNumeric ? const TextInputType.numberWithOptions(decimal: true) : TextInputType.text,
         decoration: InputDecoration(
           labelText: label,
@@ -314,33 +352,34 @@ class _ConfigPageState extends State<ConfigPage> {
           filled: true,
           fillColor: Colors.white.withValues(alpha: 0.5),
         ),
-        validator: validator ?? (v) => (v == null || v.isEmpty) ? 'Required' : null,
+        validator: readOnly ? null : (validator ?? (v) => (v == null || v.isEmpty) ? 'Required' : null),
       ),
     );
   }
 
-  Widget _buildNPKRow(TextEditingController n, TextEditingController p, TextEditingController k) {
+  Widget _buildNPKRow(TextEditingController n, TextEditingController p, TextEditingController k, bool readOnly) {
     return Row(
       children: [
-        Expanded(child: _buildPercentageField('N %', n)),
+        Expanded(child: _buildPercentageField('N %', n, readOnly)),
         const SizedBox(width: 8),
-        Expanded(child: _buildPercentageField('P %', p)),
+        Expanded(child: _buildPercentageField('P %', p, readOnly)),
         const SizedBox(width: 8),
-        Expanded(child: _buildPercentageField('K %', k)),
+        Expanded(child: _buildPercentageField('K %', k, readOnly)),
       ],
     );
   }
 
-  Widget _buildPercentageField(String label, TextEditingController controller) {
+  Widget _buildPercentageField(String label, TextEditingController controller, bool readOnly) {
     return TextFormField(
       controller: controller,
+      readOnly: readOnly,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(
         labelText: label,
         border: const OutlineInputBorder(),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       ),
-      validator: (v) {
+      validator: readOnly ? null : (v) {
         final val = double.tryParse(v ?? '');
         if (val == null) return 'Req';
         if (val < 0 || val > 100) return '0-100';
