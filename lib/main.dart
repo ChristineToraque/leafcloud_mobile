@@ -14,6 +14,7 @@ import 'package:leaf_cloud/providers/alert_provider.dart';
 import 'package:leaf_cloud/providers/calibration_provider.dart';
 import 'package:leaf_cloud/services/discovery_service.dart';
 import 'package:leaf_cloud/services/notification_service.dart';
+import 'package:leaf_cloud/core/auth_client.dart';
 import 'package:leaf_cloud/ui/login_page.dart';
 import 'package:provider/provider.dart';
 
@@ -38,13 +39,13 @@ Future<void> main() async {
           create: (_) => AuthRepository(),
         ),
         Provider<IConfigRepository>(
-          create: (_) => ConfigRepository(),
+          create: (_) => ConfigRepository(client: AuthClient()),
         ),
         Provider<IIotRepository>(
-          create: (_) => IotRepository(),
+          create: (_) => IotRepository(client: AuthClient()),
         ),
         Provider<ICalibrationRepository>(
-          create: (_) => CalibrationRepository(),
+          create: (_) => CalibrationRepository(client: AuthClient()),
         ),
         // Providers
         ChangeNotifierProvider(

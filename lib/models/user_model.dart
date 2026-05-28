@@ -24,12 +24,14 @@ class User {
 class LoginResponse {
   final String status;
   final String token;
+  final String? refreshToken;
   final String message;
   final User? user;
 
   LoginResponse({
     required this.status,
     required this.token,
+    this.refreshToken,
     required this.message,
     this.user,
   });
@@ -38,6 +40,7 @@ class LoginResponse {
     return LoginResponse(
       status: json['status'],
       token: json['token'],
+      refreshToken: json['refresh_token'],
       message: json['message'],
       user: json['user'] != null ? User.fromJson(json['user']) : null,
     );

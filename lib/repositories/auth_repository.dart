@@ -94,4 +94,51 @@ class AuthRepository implements IAuthRepository {
       throw Exception('An unexpected error occurred: $e');
     }
   }
+
+  @override
+  Future<void> logout(String accessToken, String refreshToken) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/auth/logout'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $accessToken',
+        },
+        body: jsonEncode({'refresh_token': refreshToken}),
+      );
+      if (response.statusCode != 200) {
+        throw Exception('Logout on server failed (${response.statusCode})');
+      }
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred during logout: $e');
+    }
+  }
+
+  @override
+  Future<LoginResponse> refresh(String refreshToken) async {
+    try {
+      final response = await _client.post(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/auth/refresh'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refresh_token': refreshToken}),
+      );
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server error: Non-JSON response (Status: ${response.statusCode})');
+      }
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return LoginResponse.fromJson(data);
+      } else {
+        throw Exception(data['detail'] ?? 'Token refresh failed (${response.statusCode})');
+      }
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred during refresh: $e');
+    }
+  }
 }

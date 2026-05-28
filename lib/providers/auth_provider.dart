@@ -27,6 +27,7 @@ class AuthProvider extends ChangeNotifier {
     try {
       _loginResponse = await _authRepository.login(email, password);
       ApiConstants.token = _loginResponse?.token;
+      ApiConstants.refreshToken = _loginResponse?.refreshToken;
       _isLoading = false;
       notifyListeners();
       return true;
@@ -38,10 +39,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void logout() {
+  Future<void> logout() async {
+    final accessToken = ApiConstants.token;
+    final refreshToken = ApiConstants.refreshToken;
+
+    // Clear local session state instantly
     _loginResponse = null;
     ApiConstants.token = null;
+    ApiConstants.refreshToken = null;
     notifyListeners();
+
+    // Invoke server logout in the background
+    if (accessToken != null && refreshToken != null) {
+      try {
+        await _authRepository.logout(accessToken, refreshToken);
+      } catch (e) {
+        debugPrint('Server-side logout request failed: $e');
+      }
+    }
   }
 
   Future<bool> register(String name, String email, String password) async {
