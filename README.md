@@ -22,6 +22,11 @@ Comprehensive guides for each feature:
 4. [Reservoir Configuration](docs/page-4-system-config.md)
 5. [Monitoring Dashboard](docs/page-5-dashboard.md)
 6. [Alert Polling & Notifications](docs/page-6-alert-notifications.md)
+7. [Reading History](docs/page-7-reading-history.md)
+8. [Sensor Calibration](docs/page-8-sensor-calibration.md)
+9. [Shared UI Components](docs/page-9-shared-components.md)
+10. [User Registration](docs/page-10-user-registration.md)
+11. [JWT Authentication](docs/page-11-jwt-authentication.md)
 
 ## Development
 
@@ -35,5 +40,3 @@ Comprehensive guides for each feature:
 2. Run `flutter pub get`.
 3. Ensure your backend server is running and broadcasting its service.
 4. Run `flutter run`.
-
-![alt text](image.png)
