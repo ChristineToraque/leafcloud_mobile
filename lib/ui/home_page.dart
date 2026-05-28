@@ -8,6 +8,7 @@ import 'package:leaf_cloud/ui/history_screen.dart';
 import 'package:leaf_cloud/ui/alerts_screen.dart';
 import 'package:leaf_cloud/ui/calibration_screen.dart';
 import 'package:leaf_cloud/ui/register_page.dart';
+import 'package:leaf_cloud/ui/profile_page.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
 
 class HomePage extends StatelessWidget {
@@ -127,6 +128,18 @@ class HomePage extends StatelessWidget {
                 },
               ),
             ],
+            ListTile(
+              leading: const Icon(Icons.account_circle, color: Color(0xFF4E7A43)),
+              title: const Text('My Profile'),
+              subtitle: const Text('Manage name, email, and password'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const ProfilePage()),
+                );
+              },
+            ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),

@@ -39,8 +39,9 @@ class _RegisterPageState extends State<RegisterPage> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('New user registered successfully!'),
+          content: Text('Registration successful! Please check server stdout for the simulated verification link to activate this account before logging in.'),
           backgroundColor: Colors.green,
+          duration: Duration(seconds: 6),
         ),
       );
       Navigator.pop(context);
