@@ -30,6 +30,9 @@ Comprehensive guides for each feature:
 12. [Role-Based Access Control](docs/page-12-role-based-access-control.md)
 13. [Token Lifecycle Management](docs/page-13-token-lifecycle-client.md)
 14. [Account Lifecycle Management](docs/page-14-account-lifecycle-client.md)
+15. [WSL2 mDNS Setup & Troubleshooting](docs/page-15-wsl-mdns-setup.md)
+16. [WSL2 mDNS & Firewall Resolution Guide](docs/page-16-wsl-mdns-firewall-resolution.md)
+
 
 ## Development
 
@@ -42,4 +45,23 @@ Comprehensive guides for each feature:
 1. Clone the repository.
 2. Run `flutter pub get`.
 3. Ensure your backend server is running and broadcasting its service.
-4. Run `flutter run`.
+4. Run the app:
+   ```bash
+   flutter run -d linux
+   ```
+
+### Windows / WSL2 Startup Routine
+If you shutdown or restart your laptop, run these commands to start the development environment:
+
+1. **Start the local mDNS service** inside your WSL terminal:
+   ```bash
+   sudo service dbus start && sudo avahi-daemon -D
+   ```
+2. **Start the backend server** (on the Mac or Windows host):
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8000
+   ```
+3. **Run the Flutter app** in your WSL terminal:
+   ```bash
+   flutter run -d linux
+   ```

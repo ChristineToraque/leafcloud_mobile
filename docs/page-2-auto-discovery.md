@@ -25,10 +25,9 @@ This is a singleton service that manages the network scan.
     4. Once found, it extracts the IP and port, cancels the timer, and stops scanning.
     5. It updates the global `ApiConstants.baseUrl`.
 
-- **Fallback (timeout)**: If no server is discovered within 15 seconds — typically caused by a router blocking mDNS multicast between WiFi clients — the service automatically falls back to the hardcoded address `http://192.168.1.20:8000`. This ensures the app connects even when mDNS is unavailable, as long as the device can reach the server via IP.
+- **Timeout / Failure Handling**: If no server is discovered within 15 seconds, the service stops scanning and calls `ApiConstants.setDisconnected()`. The UI changes to show "Not connected to any server" in red, and the API calls default to localhost to prevent confusing connections to incorrect hardcoded IPs.
 
 ```dart
-static const String _fallbackUrl = 'http://192.168.1.20:8000';
 static const Duration _discoveryTimeout = Duration(seconds: 15);
 ```
 
@@ -39,6 +38,7 @@ The `ApiConstants` class provides a `connectionNotifier` (`ValueNotifier`) that 
 The app displays a connection badge at the top:
 - **Orange**: "Searching for server..."
 - **Green**: "Connected: http://[IP]:8000"
+- **Red**: "Not connected to any server"
 
 ## 4. Server-Side Requirements
 Your backend must broadcast its presence using the `_leafcloud._tcp` service type. 
