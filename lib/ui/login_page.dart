@@ -208,15 +208,39 @@ class _LoginPageState extends State<LoginPage> {
               child: ValueListenableBuilder<String?>(
                 valueListenable: ApiConstants.connectionNotifier,
                 builder: (context, discoveredUrl, child) {
-                  final isConnected = discoveredUrl != null;
+                  final isConnected = discoveredUrl != null && discoveredUrl != 'disconnected';
+                  final isDisconnected = discoveredUrl == 'disconnected';
+
+                  Color statusColor;
+                  Color textColor;
+                  IconData statusIcon;
+                  String statusText;
+
+                  if (isConnected) {
+                    statusColor = Colors.green;
+                    textColor = Colors.green[700]!;
+                    statusIcon = Icons.cloud_done;
+                    statusText = 'Connected: $discoveredUrl';
+                  } else if (isDisconnected) {
+                    statusColor = Colors.red;
+                    textColor = Colors.red[700]!;
+                    statusIcon = Icons.cloud_off;
+                    statusText = 'Not connected to any server';
+                  } else {
+                    statusColor = Colors.orange;
+                    textColor = Colors.orange[700]!;
+                    statusIcon = Icons.search;
+                    statusText = 'Searching for server...';
+                  }
+
                   return AnimatedContainer(
                     duration: const Duration(milliseconds: 500),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
-                      color: isConnected ? Colors.green.withValues(alpha: 0.1) : Colors.orange.withValues(alpha: 0.1),
+                      color: statusColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: isConnected ? Colors.green : Colors.orange,
+                        color: statusColor,
                         width: 1,
                       ),
                     ),
@@ -224,17 +248,17 @@ class _LoginPageState extends State<LoginPage> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          isConnected ? Icons.cloud_done : Icons.cloud_off,
+                          statusIcon,
                           size: 16,
-                          color: isConnected ? Colors.green[700] : Colors.orange[700],
+                          color: textColor,
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          isConnected ? 'Connected: $discoveredUrl' : 'Searching for server...',
+                          statusText,
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: isConnected ? Colors.green[700] : Colors.orange[700],
+                            color: textColor,
                           ),
                         ),
                       ],
