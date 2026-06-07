@@ -252,7 +252,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         ),
                         subtitle: const Text('Update account security credentials'),
-                        activeColor: const Color(0xFF4E7A43),
+                        activeThumbColor: const Color(0xFF4E7A43),
                         contentPadding: EdgeInsets.zero,
                       ),
                       if (_changePassword) ...[

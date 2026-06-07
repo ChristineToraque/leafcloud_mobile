@@ -10,6 +10,7 @@ import 'package:leaf_cloud/ui/calibration_screen.dart';
 import 'package:leaf_cloud/ui/register_page.dart';
 import 'package:leaf_cloud/ui/profile_page.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
+import 'package:leaf_cloud/providers/alert_provider.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -24,6 +25,24 @@ class HomePage extends StatelessWidget {
         backgroundColor: const Color(0xFF4E7A43),
         foregroundColor: Colors.white,
         actions: [
+          Consumer<AlertProvider>(
+            builder: (context, alertProvider, child) {
+              final hasActiveAlert = alertProvider.alerts.values.any((status) => status.hasAlert);
+              return IconButton(
+                icon: Icon(
+                  hasActiveAlert ? Icons.notifications_active : Icons.notifications,
+                  color: hasActiveAlert ? Colors.amber[300] : Colors.white,
+                ),
+                tooltip: 'Nutrient Alerts',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const AlertsScreen()),
+                  );
+                },
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             tooltip: 'Refresh Dashboard',
