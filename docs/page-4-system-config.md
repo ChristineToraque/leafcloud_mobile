@@ -1,3 +1,5 @@
+[Prev](./page-3-home-page.md) | [Next](./page-5-dashboard.md)
+
 # Reservoir Configuration Management
 
 This document describes how users manage their physical hydroponic setup within the app.

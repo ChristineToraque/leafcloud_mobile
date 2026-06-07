@@ -1,3 +1,5 @@
+[Prev](./page-9-shared-components.md) | [Next](./page-11-jwt-authentication.md)
+
 # User Registration ("Add User")
 
 This document describes the architectural flow and implementation details of the User Registration feature, which allows registering new user accounts from within the app.

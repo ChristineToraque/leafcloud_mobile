@@ -1,3 +1,5 @@
+[Prev](./page-10-user-registration.md) | [Next](./page-12-role-based-access-control.md)
+
 # JWT Authentication & Token Integration
 
 This document describes the design and implementation of JWT authentication on the mobile client, enabling secure access to protected endpoints on the LeafCloud Server.

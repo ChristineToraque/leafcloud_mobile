@@ -1,3 +1,5 @@
+[Prev](./page-13-token-lifecycle-client.md) | [Next](./page-15-ui-screens.md)
+
 # Client Integration: **Account Lifecycle Management**
 
 This document explains the mobile application's integration of the Account Lifecycle Management workflows introduced on the backend. It describes the design patterns, screen flows, and security measures applied.

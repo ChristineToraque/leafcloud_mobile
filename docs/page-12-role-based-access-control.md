@@ -1,3 +1,5 @@
+[Prev](./page-11-jwt-authentication.md) | [Next](./page-13-token-lifecycle-client.md)
+
 # Role-Based Access Control (RBAC) Client-Side Adaptation
 
 This document details the adaptation of the mobile client application to enforce Role-Based Access Control (RBAC) depending on whether the authenticated user holds administrative privileges.

@@ -1,3 +1,5 @@
+[Prev](./page-2-auto-discovery.md) | [Next](./page-4-system-config.md)
+
 # Main Application Structure & Navigation
 
 This document describes the main application shell and how users navigate between features.

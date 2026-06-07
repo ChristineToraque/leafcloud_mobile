@@ -1,3 +1,5 @@
+[Prev](./page-8-sensor-calibration.md) | [Next](./page-10-user-registration.md)
+
 # Shared UI Components
 
 This document describes reusable widgets used across multiple screens in the LeafCloud app.

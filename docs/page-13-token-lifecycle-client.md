@@ -1,3 +1,5 @@
+[Prev](./page-12-role-based-access-control.md) | [Next](./page-14-account-lifecycle-client.md)
+
 # Token Lifecycle Management: Access + Refresh Tokens
 
 This document describes the client-side architecture and implementation of the dual-token system (Access + Refresh) and Token Rotation (RTR) to support secure sessions and instant logout blacklisting.

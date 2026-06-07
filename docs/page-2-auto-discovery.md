@@ -1,3 +1,5 @@
+[Prev](./page-1-login-app.md) | [Next](./page-3-home-page.md)
+
 # mDNS Auto-Discovery (Zero-Configuration)
 
 This document explains how LeafCloud automatically discovers the backend server on a local network without manual IP configuration.

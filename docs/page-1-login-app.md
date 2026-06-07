@@ -1,3 +1,5 @@
+[Next](./page-2-auto-discovery.md)
+
 # LoginApp Execution Flow
 
 This document describes the architectural flow and implementation details of the LeafCloud Login application.

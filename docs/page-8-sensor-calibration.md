@@ -1,3 +1,5 @@
+[Prev](./page-7-reading-history.md) | [Next](./page-9-shared-components.md)
+
 # Sensor Calibration
 
 This document describes the Sensor Calibration screen, which allows farmers to remotely trigger calibration mode on the Raspberry Pi's pH and EC sensors.

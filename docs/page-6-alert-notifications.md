@@ -1,3 +1,5 @@
+[Prev](./page-5-dashboard.md) | [Next](./page-7-reading-history.md)
+
 # Alert Polling & Notifications
 
 This document describes the implementation of the background alert polling and local notification system.

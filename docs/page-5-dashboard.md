@@ -1,3 +1,5 @@
+[Prev](./page-4-system-config.md) | [Next](./page-6-alert-notifications.md)
+
 # Real-Time Monitoring Dashboard
 
 This document describes the implementation of the AI-powered monitoring dashboard for LeafCloud, including the latest Multi-Task AI integration.

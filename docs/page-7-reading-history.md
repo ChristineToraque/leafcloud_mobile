@@ -1,3 +1,5 @@
+[Prev](./page-6-alert-notifications.md) | [Next](./page-8-sensor-calibration.md)
+
 # Reading History
 
 This document describes the implementation of the Reading History screen, which lets farmers review past sensor readings, plant photos, and AI-generated nutrient trend data.
