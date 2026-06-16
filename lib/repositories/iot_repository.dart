@@ -4,6 +4,7 @@ import 'package:leaf_cloud/core/constants.dart';
 import 'package:leaf_cloud/models/dashboard_model.dart';
 import 'package:leaf_cloud/models/history_model.dart';
 import 'package:leaf_cloud/models/alert_model.dart';
+import 'package:leaf_cloud/models/telemetry_model.dart';
 import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
 
 class IotRepository implements IIotRepository {
@@ -94,6 +95,34 @@ class IotRepository implements IIotRepository {
         return HistoryData.fromJson(data);
       } else {
         throw Exception(data['detail'] ?? 'Failed to load history (${response.statusCode})');
+      }
+    } on FormatException {
+      throw Exception('Server error: Invalid data format received.');
+    } catch (e) {
+      if (e is Exception) rethrow;
+      throw Exception('An unexpected error occurred: $e');
+    }
+  }
+
+  @override
+  Future<LiveTelemetryData> getLiveTelemetry(int tankId) async {
+    try {
+      final response = await _client.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/v1/iot/telemetry/$tankId'),
+        headers: _getHeaders(),
+      );
+
+      final contentType = response.headers['content-type'];
+      if (contentType == null || !contentType.contains('application/json')) {
+        throw Exception('Server error: Non-JSON response (Status: ${response.statusCode})');
+      }
+
+      final data = jsonDecode(response.body);
+
+      if (response.statusCode == 200) {
+        return LiveTelemetryData.fromJson(data);
+      } else {
+        throw Exception(data['detail'] ?? 'Failed to load live telemetry (${response.statusCode})');
       }
     } on FormatException {
       throw Exception('Server error: Invalid data format received.');

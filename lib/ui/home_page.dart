@@ -9,6 +9,7 @@ import 'package:leaf_cloud/ui/alerts_screen.dart';
 import 'package:leaf_cloud/ui/calibration_screen.dart';
 import 'package:leaf_cloud/ui/register_page.dart';
 import 'package:leaf_cloud/ui/profile_page.dart';
+import 'package:leaf_cloud/ui/live_telemetry_screen.dart';
 import 'package:leaf_cloud/providers/auth_provider.dart';
 import 'package:leaf_cloud/providers/alert_provider.dart';
 
@@ -106,6 +107,18 @@ class HomePage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const HistoryScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.bolt, color: Color(0xFF4E7A43)),
+              title: const Text('Live Readings'),
+              subtitle: const Text('Real-time sensor logs'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LiveTelemetryScreen()),
                 );
               },
             ),

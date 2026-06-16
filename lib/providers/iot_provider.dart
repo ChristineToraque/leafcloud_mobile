@@ -1,10 +1,13 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:leaf_cloud/models/dashboard_model.dart';
 import 'package:leaf_cloud/models/history_model.dart';
+import 'package:leaf_cloud/models/telemetry_model.dart';
 import 'package:leaf_cloud/repositories/iot_repository_interface.dart';
 
 class IotProvider extends ChangeNotifier {
   final IIotRepository _iotRepository;
+  Timer? _telemetryTimer;
 
   IotProvider(this._iotRepository);
 
@@ -58,5 +61,62 @@ class IotProvider extends ChangeNotifier {
       _isHistoryLoading = false;
       notifyListeners();
     }
+  }
+
+  // --- Live Telemetry ---
+  LiveTelemetryData? _liveTelemetry;
+  LiveTelemetryData? get liveTelemetry => _liveTelemetry;
+
+  void startLiveTelemetryPolling(int tankId) {
+    stopLiveTelemetryPolling(); // Cancel any existing polling
+    
+    // Fetch immediately, then schedule every 3 seconds
+    fetchLiveTelemetry(tankId);
+    _telemetryTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      fetchLiveTelemetry(tankId);
+    });
+  }
+
+  void stopLiveTelemetryPolling() {
+    _telemetryTimer?.cancel();
+    _telemetryTimer = null;
+  }
+
+  Future<void> fetchLiveTelemetry(int tankId) async {
+    try {
+      _liveTelemetry = await _iotRepository.getLiveTelemetry(tankId);
+      
+      // Dynamically merge live telemetry into the active dashboard model
+      if (_dashboardData != null && _liveTelemetry != null) {
+        _dashboardData = DashboardData(
+          tankId: _dashboardData!.tankId,
+          tankName: _dashboardData!.tankName,
+          lastUpdated: _liveTelemetry!.updatedAt,
+          imageUrl: _dashboardData!.imageUrl,
+          healthStatus: _dashboardData!.healthStatus,
+          profileDetected: _dashboardData!.profileDetected,
+          predictedClass: _dashboardData!.predictedClass,
+          isAnomaly: _dashboardData!.isAnomaly,
+          telemetry: TelemetryData(
+            ph: _liveTelemetry!.ph ?? _dashboardData!.telemetry.ph,
+            ec: _liveTelemetry!.ec ?? _dashboardData!.telemetry.ec,
+            waterTemp: _liveTelemetry!.waterTemp ?? _dashboardData!.telemetry.waterTemp,
+            status: _dashboardData!.telemetry.status,
+          ),
+          estimatedNutrients: _dashboardData!.estimatedNutrients,
+          advisory: _dashboardData!.advisory,
+          alert: _dashboardData!.alert,
+        );
+      }
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error polling live telemetry: $e');
+    }
+  }
+
+  @override
+  void dispose() {
+    stopLiveTelemetryPolling();
+    super.dispose();
   }
 }
