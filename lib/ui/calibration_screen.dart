@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:leaf_cloud/providers/calibration_provider.dart';
@@ -13,11 +14,28 @@ class CalibrationScreen extends StatefulWidget {
 }
 
 class _CalibrationScreenState extends State<CalibrationScreen> {
+  Timer? _pollingTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<CalibrationProvider>().fetchCalibrations();
+    });
+    _startPolling();
+  }
+
+  @override
+  void dispose() {
+    _pollingTimer?.cancel();
+    super.dispose();
+  }
+
+  void _startPolling() {
+    _pollingTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (mounted) {
+        context.read<CalibrationProvider>().fetchCalibrations(showLoading: false);
+      }
     });
   }
 

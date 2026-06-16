@@ -16,17 +16,21 @@ class CalibrationProvider extends ChangeNotifier {
   List<SensorCalibration> _calibrations = [];
   List<SensorCalibration> get calibrations => _calibrations;
 
-  Future<void> fetchCalibrations() async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
+  Future<void> fetchCalibrations({bool showLoading = true}) async {
+    if (showLoading) {
+      _isLoading = true;
+      _errorMessage = null;
+      notifyListeners();
+    }
 
     try {
       _calibrations = await _calibrationRepository.getCalibrations();
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      _errorMessage = e.toString().replaceAll('Exception: ', '');
+      if (showLoading) {
+        _errorMessage = e.toString().replaceAll('Exception: ', '');
+      }
       _isLoading = false;
       notifyListeners();
     }
